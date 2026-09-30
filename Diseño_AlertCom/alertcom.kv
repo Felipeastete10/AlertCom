@@ -1,0 +1,945 @@
+# =============================================================================
+# AlertCom - Archivo de diseño KV (KivyMD 2.0.1.dev0 / Material Design 3)
+# =============================================================================
+# "Reporta. Ubica. Mejora."
+# Cada pantalla responde a datos reales de la investigación A+S (26 encuestas).
+# =============================================================================
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PANTALLA 1: AVISO DE SEGURIDAD
+# ─────────────────────────────────────────────────────────────────────────────
+<SafetyScreen>:
+    name: "safety"
+    md_bg_color: app.theme_cls.surfaceColor
+
+    MDBoxLayout:
+        orientation: "vertical"
+        spacing: "20dp"
+        padding: ["30dp", "40dp", "30dp", "40dp"]
+
+        # Espacio superior flexible
+        Widget:
+            size_hint_y: 0.15
+
+        # Icono de advertencia grande
+        MDIcon:
+            icon: "shield-car"
+            font_size: "80sp"
+            halign: "center"
+            theme_text_color: "Custom"
+            text_color: [1, 0.6, 0, 1]
+            size_hint_y: None
+            height: "100dp"
+
+        # Título del aviso
+        MDLabel:
+            text: "Tu seguridad es lo primero"
+            font_style: "Headline"
+            role: "medium"
+            halign: "center"
+            theme_text_color: "Primary"
+            adaptive_height: True
+
+        # Mensaje principal
+        MDLabel:
+            text: "No utilices AlertCom\nmientras conduces"
+            font_style: "Title"
+            role: "large"
+            halign: "center"
+            theme_text_color: "Secondary"
+            adaptive_height: True
+
+        # Ícono decorativo
+        MDIcon:
+            icon: "car-brake-alert"
+            font_size: "48sp"
+            halign: "center"
+            theme_text_color: "Custom"
+            text_color: [0.8, 0.3, 0.3, 1]
+            size_hint_y: None
+            height: "60dp"
+
+        # Mensaje secundario
+        MDLabel:
+            text: "Estaciona en un lugar seguro antes de reportar un bache. Tu vida y la de otros es más importante."
+            font_style: "Body"
+            role: "large"
+            halign: "center"
+            theme_text_color: "Secondary"
+            adaptive_height: True
+
+        # Espacio flexible
+        Widget:
+            size_hint_y: 0.1
+
+        # Botón "Entendido"
+        MDButton:
+            style: "filled"
+            size_hint_x: 0.85
+            pos_hint: {"center_x": 0.5}
+            on_release: app.go_to_screen("login", "left")
+
+            MDButtonText:
+                text: "Entendido"
+                font_style: "Title"
+
+        # Espacio inferior
+        Widget:
+            size_hint_y: 0.05
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PANTALLA 2: LOGIN
+# ─────────────────────────────────────────────────────────────────────────────
+<LoginScreen>:
+    name: "login"
+    md_bg_color: app.theme_cls.surfaceColor
+
+    MDBoxLayout:
+        orientation: "vertical"
+        spacing: "16dp"
+        padding: ["30dp", "40dp", "30dp", "30dp"]
+
+        Widget:
+            size_hint_y: 0.1
+
+        MDIcon:
+            icon: "map-marker-alert"
+            font_size: "64sp"
+            halign: "center"
+            theme_text_color: "Custom"
+            text_color: [1, 0.6, 0, 1]
+            size_hint_y: None
+            height: "80dp"
+
+        MDLabel:
+            text: "AlertCom"
+            font_style: "Display"
+            role: "small"
+            halign: "center"
+            theme_text_color: "Primary"
+            adaptive_height: True
+
+        MDLabel:
+            text: "Reporta. Ubica. Mejora."
+            font_style: "Body"
+            role: "large"
+            halign: "center"
+            theme_text_color: "Secondary"
+            adaptive_height: True
+
+        Widget:
+            size_hint_y: 0.05
+
+        MDTextField:
+            id: email_field
+            mode: "outlined"
+            size_hint_x: 0.95
+            pos_hint: {"center_x": 0.5}
+
+            MDTextFieldLeadingIcon:
+                icon: "email-outline"
+
+            MDTextFieldHintText:
+                text: "Correo electrónico"
+
+            MDTextFieldHelperText:
+                text: "Usa tu correo institucional o personal"
+                mode: "on_focus"
+
+        MDTextField:
+            id: password_field
+            mode: "outlined"
+            size_hint_x: 0.95
+            pos_hint: {"center_x": 0.5}
+            password: True
+
+            MDTextFieldLeadingIcon:
+                icon: "lock-outline"
+
+            MDTextFieldHintText:
+                text: "Contraseña"
+
+        Widget:
+            size_hint_y: 0.04
+
+        MDButton:
+            style: "filled"
+            size_hint_x: 0.95
+            pos_hint: {"center_x": 0.5}
+            on_release: root.validate_login()
+
+            MDButtonIcon:
+                icon: "login"
+
+            MDButtonText:
+                text: "Iniciar Sesión"
+
+        MDButton:
+            style: "outlined"
+            size_hint_x: 0.95
+            pos_hint: {"center_x": 0.5}
+            on_release: root.validate_login()
+
+            MDButtonIcon:
+                icon: "account-plus-outline"
+
+            MDButtonText:
+                text: "Crear Cuenta"
+
+        Widget:
+            size_hint_y: 0.1
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PANTALLA 3: HOME / MAPA
+# ─────────────────────────────────────────────────────────────────────────────
+<HomeScreen>:
+    name: "home"
+    md_bg_color: app.theme_cls.surfaceColor
+
+    MDBoxLayout:
+        orientation: "vertical"
+
+        # ── Barra superior ──
+        MDTopAppBar:
+            type: "small"
+
+            MDTopAppBarLeadingButtonContainer:
+                MDActionTopAppBarButton:
+                    icon: "menu"
+
+            MDTopAppBarTitle:
+                text: "AlertCom"
+                pos_hint: {"center_x": 0.5}
+
+            MDTopAppBarTrailingButtonContainer:
+                MDActionTopAppBarButton:
+                    icon: "bell-outline"
+                MDActionTopAppBarButton:
+                    icon: "account-circle-outline"
+                    on_release: app.go_to_screen("profile", "left")
+
+        # ── Zona del Mapa (simulación) ──
+        MDBoxLayout:
+            orientation: "vertical"
+            padding: "0dp"
+
+            MDBoxLayout:
+                orientation: "vertical"
+                spacing: "8dp"
+                padding: ["20dp", "20dp", "20dp", "0dp"]
+
+                Widget:
+                    size_hint_y: 0.05
+
+                MDIcon:
+                    icon: "map-outline"
+                    font_size: "120sp"
+                    halign: "center"
+                    theme_text_color: "Custom"
+                    text_color: [0.4, 0.6, 0.4, 0.5]
+                    size_hint_y: None
+                    height: "140dp"
+
+                MDLabel:
+                    text: "Mapa de Temuco"
+                    font_style: "Title"
+                    role: "large"
+                    halign: "center"
+                    theme_text_color: "Secondary"
+                    adaptive_height: True
+
+                MDLabel:
+                    text: "Zona de visualización de baches reportados"
+                    font_style: "Body"
+                    role: "medium"
+                    halign: "center"
+                    theme_text_color: "Secondary"
+                    adaptive_height: True
+
+                # Simulación de marcadores en el mapa
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    spacing: "30dp"
+                    size_hint_y: None
+                    height: "50dp"
+                    padding: ["40dp", "10dp", "40dp", "0dp"]
+
+                    MDIcon:
+                        icon: "map-marker"
+                        font_size: "28sp"
+                        halign: "center"
+                        theme_text_color: "Custom"
+                        text_color: [1, 0.3, 0.3, 1]
+
+                    MDIcon:
+                        icon: "map-marker"
+                        font_size: "28sp"
+                        halign: "center"
+                        theme_text_color: "Custom"
+                        text_color: [1, 0.6, 0, 1]
+
+                    MDIcon:
+                        icon: "map-marker-check"
+                        font_size: "28sp"
+                        halign: "center"
+                        theme_text_color: "Custom"
+                        text_color: [0.3, 0.8, 0.3, 1]
+
+                    MDIcon:
+                        icon: "map-marker"
+                        font_size: "28sp"
+                        halign: "center"
+                        theme_text_color: "Custom"
+                        text_color: [1, 0.3, 0.3, 1]
+
+                # Leyenda de colores
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    spacing: "12dp"
+                    size_hint_y: None
+                    height: "30dp"
+                    pos_hint: {"center_x": 0.5}
+                    size_hint_x: 0.95
+
+                    MDIcon:
+                        icon: "circle"
+                        font_size: "12sp"
+                        theme_text_color: "Custom"
+                        text_color: [1, 0.3, 0.3, 1]
+                    MDLabel:
+                        text: "Pendiente"
+                        font_style: "Label"
+                        role: "small"
+                        theme_text_color: "Secondary"
+
+                    MDIcon:
+                        icon: "circle"
+                        font_size: "12sp"
+                        theme_text_color: "Custom"
+                        text_color: [1, 0.6, 0, 1]
+                    MDLabel:
+                        text: "En revisión"
+                        font_style: "Label"
+                        role: "small"
+                        theme_text_color: "Secondary"
+
+                    MDIcon:
+                        icon: "circle"
+                        font_size: "12sp"
+                        theme_text_color: "Custom"
+                        text_color: [0.3, 0.8, 0.3, 1]
+                    MDLabel:
+                        text: "Reparado"
+                        font_style: "Label"
+                        role: "small"
+                        theme_text_color: "Secondary"
+
+                Widget:
+                    size_hint_y: 0.05
+
+        # ── Botón principal de reporte (CALL-TO-ACTION VISIBLE) ──
+        MDBoxLayout:
+            orientation: "vertical"
+            size_hint_y: None
+            height: "90dp"
+            padding: ["20dp", "8dp", "20dp", "8dp"]
+
+            MDButton:
+                style: "filled"
+                size_hint_x: 1
+                size_hint_y: 1
+                pos_hint: {"center_x": 0.5}
+                on_release: app.go_to_screen("report", "left")
+
+                MDButtonIcon:
+                    icon: "plus-circle"
+
+                MDButtonText:
+                    text: "+ Reportar bache"
+                    font_style: "Title"
+
+        # ── Barra de navegación inferior ──
+        MDNavigationBar:
+            on_switch_tabs: app.on_switch_tabs(*args)
+
+            MDNavigationItem:
+                active: True
+                MDNavigationItemIcon:
+                    icon: "home"
+                MDNavigationItemLabel:
+                    text: "Inicio"
+
+            MDNavigationItem:
+                MDNavigationItemIcon:
+                    icon: "clipboard-text-clock-outline"
+                MDNavigationItemLabel:
+                    text: "Mis Reportes"
+
+            MDNavigationItem:
+                MDNavigationItemIcon:
+                    icon: "account-outline"
+                MDNavigationItemLabel:
+                    text: "Perfil"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PANTALLA 4: FORMULARIO DE REPORTE (CON PREVENCIÓN DE COLAPSO)
+# ─────────────────────────────────────────────────────────────────────────────
+<ReportScreen>:
+    name: "report"
+    md_bg_color: app.theme_cls.surfaceColor
+
+    MDBoxLayout:
+        orientation: "vertical"
+
+        # ── Barra superior ──
+        MDTopAppBar:
+            type: "small"
+
+            MDTopAppBarLeadingButtonContainer:
+                MDActionTopAppBarButton:
+                    icon: "arrow-left"
+                    on_release: app.go_back()
+
+            MDTopAppBarTitle:
+                text: "Nuevo Reporte"
+                pos_hint: {"center_x": 0.5}
+
+        # ── Contenedor deslizable con adaptive_height para evitar superposición ──
+        ScrollView:
+            do_scroll_x: False
+            bar_width: "4dp"
+
+            MDBoxLayout:
+                orientation: "vertical"
+                spacing: "18dp"
+                padding: ["24dp", "20dp", "24dp", "30dp"]
+                adaptive_height: True
+
+                # ── CAMPO 1: Foto ──
+                MDLabel:
+                    text: "📷  Fotografía del daño"
+                    font_style: "Title"
+                    role: "small"
+                    theme_text_color: "Primary"
+                    adaptive_height: True
+
+                # Zona de foto simulada
+                MDCard:
+                    size_hint_x: 1
+                    size_hint_y: None
+                    height: "140dp"
+                    theme_bg_color: "Custom"
+                    md_bg_color: [0.15, 0.15, 0.18, 1]
+                    padding: "16dp"
+                    on_release: root.simulate_photo()
+
+                    MDBoxLayout:
+                        orientation: "vertical"
+                        spacing: "8dp"
+                        adaptive_height: True
+                        pos_hint: {"center_y": 0.5}
+
+                        MDIcon:
+                            icon: "camera-plus-outline"
+                            font_size: "48sp"
+                            halign: "center"
+                            theme_text_color: "Custom"
+                            text_color: [1, 0.6, 0, 1]
+                            adaptive_height: True
+
+                        MDLabel:
+                            id: photo_label
+                            text: "Toca para tomar o seleccionar una foto"
+                            font_style: "Body"
+                            role: "medium"
+                            halign: "center"
+                            theme_text_color: "Secondary"
+                            adaptive_height: True
+
+                MDLabel:
+                    text: "📍 La ubicación GPS se adjuntará automáticamente"
+                    font_style: "Label"
+                    role: "large"
+                    theme_text_color: "Custom"
+                    text_color: [0.5, 0.7, 0.5, 1]
+                    adaptive_height: True
+
+                MDDivider:
+
+                # ── CAMPO 2: Tipo de daño ──
+                MDLabel:
+                    text: "🔧  Tipo de daño"
+                    font_style: "Title"
+                    role: "small"
+                    theme_text_color: "Primary"
+                    adaptive_height: True
+
+                MDButton:
+                    id: type_selector
+                    style: "outlined"
+                    size_hint_x: 1
+                    on_release: root.open_type_menu()
+
+                    MDButtonIcon:
+                        icon: "road-variant"
+
+                    MDButtonText:
+                        id: type_label
+                        text: "Seleccionar tipo"
+
+                # ── CAMPO 3: Gravedad ──
+                MDLabel:
+                    text: "⚠️  Gravedad"
+                    font_style: "Title"
+                    role: "small"
+                    theme_text_color: "Primary"
+                    adaptive_height: True
+
+                MDButton:
+                    id: severity_selector
+                    style: "outlined"
+                    size_hint_x: 1
+                    on_release: root.open_severity_menu()
+
+                    MDButtonIcon:
+                        icon: "alert-circle-outline"
+
+                    MDButtonText:
+                        id: severity_label
+                        text: "Seleccionar gravedad"
+
+                MDDivider:
+
+                # ── CAMPO 4: Descripción ──
+                MDLabel:
+                    text: "📝  Descripción (opcional)"
+                    font_style: "Title"
+                    role: "small"
+                    theme_text_color: "Primary"
+                    adaptive_height: True
+
+                MDTextField:
+                    id: description_field
+                    mode: "outlined"
+                    size_hint_x: 1
+                    multiline: True
+
+                    MDTextFieldHintText:
+                        text: "Describe brevemente el daño vial..."
+
+                    MDTextFieldHelperText:
+                        text: "Ej: Bache grande en calle Alemania frente al N°450"
+                        mode: "on_focus"
+
+                    MDTextFieldMaxLengthText:
+                        max_text_length: 250
+
+                Widget:
+                    size_hint_y: None
+                    height: "10dp"
+
+                # ── Botón ENVIAR ──
+                MDButton:
+                    style: "filled"
+                    size_hint_x: 1
+                    on_release: root.submit_report()
+
+                    MDButtonIcon:
+                        icon: "send"
+
+                    MDButtonText:
+                        text: "Enviar Reporte"
+                        font_style: "Title"
+
+                Widget:
+                    size_hint_y: None
+                    height: "20dp"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PANTALLA 5: HISTORIAL / SEGUIMIENTO
+# ─────────────────────────────────────────────────────────────────────────────
+<HistoryScreen>:
+    name: "history"
+    md_bg_color: app.theme_cls.surfaceColor
+
+    MDBoxLayout:
+        orientation: "vertical"
+
+        # ── Barra superior ──
+        MDTopAppBar:
+            type: "small"
+
+            MDTopAppBarLeadingButtonContainer:
+                MDActionTopAppBarButton:
+                    icon: "arrow-left"
+                    on_release: app.go_back()
+
+            MDTopAppBarTitle:
+                text: "Mis Reportes"
+                pos_hint: {"center_x": 0.5}
+
+            MDTopAppBarTrailingButtonContainer:
+                MDActionTopAppBarButton:
+                    icon: "filter-variant"
+
+        # ── Resumen superior en tarjetas ──
+        MDBoxLayout:
+            orientation: "horizontal"
+            spacing: "12dp"
+            padding: ["16dp", "12dp", "16dp", "12dp"]
+            size_hint_y: None
+            height: "80dp"
+
+            # Total de reportes
+            MDCard:
+                theme_bg_color: "Custom"
+                md_bg_color: [0.15, 0.15, 0.2, 1]
+                padding: "8dp"
+
+                MDBoxLayout:
+                    orientation: "vertical"
+                    spacing: "2dp"
+
+                    MDLabel:
+                        text: "4"
+                        font_style: "Headline"
+                        role: "small"
+                        halign: "center"
+                        theme_text_color: "Custom"
+                        text_color: [1, 0.6, 0, 1]
+
+                    MDLabel:
+                        text: "Total"
+                        font_style: "Label"
+                        role: "medium"
+                        halign: "center"
+                        theme_text_color: "Secondary"
+
+            # En revisión
+            MDCard:
+                theme_bg_color: "Custom"
+                md_bg_color: [0.15, 0.15, 0.2, 1]
+                padding: "8dp"
+
+                MDBoxLayout:
+                    orientation: "vertical"
+                    spacing: "2dp"
+
+                    MDLabel:
+                        text: "2"
+                        font_style: "Headline"
+                        role: "small"
+                        halign: "center"
+                        theme_text_color: "Custom"
+                        text_color: [1, 0.8, 0.2, 1]
+
+                    MDLabel:
+                        text: "Revisión"
+                        font_style: "Label"
+                        role: "medium"
+                        halign: "center"
+                        theme_text_color: "Secondary"
+
+            # Reparados
+            MDCard:
+                theme_bg_color: "Custom"
+                md_bg_color: [0.15, 0.15, 0.2, 1]
+                padding: "8dp"
+
+                MDBoxLayout:
+                    orientation: "vertical"
+                    spacing: "2dp"
+
+                    MDLabel:
+                        text: "1"
+                        font_style: "Headline"
+                        role: "small"
+                        halign: "center"
+                        theme_text_color: "Custom"
+                        text_color: [0.3, 0.9, 0.3, 1]
+
+                    MDLabel:
+                        text: "Reparados"
+                        font_style: "Label"
+                        role: "medium"
+                        halign: "center"
+                        theme_text_color: "Secondary"
+
+        MDDivider:
+            size_hint_x: 1
+
+        # ── Lista de reportes con ScrollView ──
+        ScrollView:
+            do_scroll_x: False
+
+            MDList:
+                spacing: "4dp"
+                padding: ["0dp", "8dp", "0dp", "8dp"]
+
+                # ── Reporte 1: En revisión ──
+                MDListItem:
+                    MDListItemLeadingIcon:
+                        icon: "alert-circle"
+                        theme_icon_color: "Custom"
+                        icon_color: [1, 0.6, 0, 1]
+
+                    MDListItemHeadlineText:
+                        text: "Bache en Av. Alemania #450"
+
+                    MDListItemSupportingText:
+                        text: "Tipo: Bache  |  Gravedad: Grave"
+
+                    MDListItemTertiaryText:
+                        text: "📅 28/09/2026  •  🟡 En revisión"
+
+                    MDListItemTrailingIcon:
+                        icon: "chevron-right"
+
+                # ── Reporte 2: Reparado ──
+                MDListItem:
+                    MDListItemLeadingIcon:
+                        icon: "check-circle"
+                        theme_icon_color: "Custom"
+                        icon_color: [0.3, 0.9, 0.3, 1]
+
+                    MDListItemHeadlineText:
+                        text: "Hoyo en calle Manuel Montt"
+
+                    MDListItemSupportingText:
+                        text: "Tipo: Hoyo  |  Gravedad: Moderado"
+
+                    MDListItemTertiaryText:
+                        text: "📅 15/09/2026  •  🟢 Reparado"
+
+                    MDListItemTrailingIcon:
+                        icon: "chevron-right"
+
+                # ── Reporte 3: En revisión ──
+                MDListItem:
+                    MDListItemLeadingIcon:
+                        icon: "clock-outline"
+                        theme_icon_color: "Custom"
+                        icon_color: [1, 0.8, 0.2, 1]
+
+                    MDListItemHeadlineText:
+                        text: "Grieta en Av. Caupolicán"
+
+                    MDListItemSupportingText:
+                        text: "Tipo: Grieta  |  Gravedad: Leve"
+
+                    MDListItemTertiaryText:
+                        text: "📅 20/09/2026  •  🟡 En revisión"
+
+                    MDListItemTrailingIcon:
+                        icon: "chevron-right"
+
+                # ── Reporte 4: Enviado ──
+                MDListItem:
+                    MDListItemLeadingIcon:
+                        icon: "new-box"
+                        theme_icon_color: "Custom"
+                        icon_color: [0.4, 0.6, 1, 1]
+
+                    MDListItemHeadlineText:
+                        text: "Hundimiento en calle Vicuña Mackenna"
+
+                    MDListItemSupportingText:
+                        text: "Tipo: Hundimiento  |  Gravedad: Crítico"
+
+                    MDListItemTertiaryText:
+                        text: "📅 29/09/2026  •  🔵 Enviado"
+
+                    MDListItemTrailingIcon:
+                        icon: "chevron-right"
+
+        # ── Botón para volver al inicio ──
+        MDBoxLayout:
+            size_hint_y: None
+            height: "70dp"
+            padding: ["20dp", "8dp", "20dp", "8dp"]
+
+            MDButton:
+                style: "outlined"
+                size_hint_x: 1
+                on_release: app.go_back()
+
+                MDButtonIcon:
+                    icon: "home"
+
+                MDButtonText:
+                    text: "Volver al Inicio"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PANTALLA 6: PERFIL DE USUARIO (NUEVA)
+# ─────────────────────────────────────────────────────────────────────────────
+<ProfileScreen>:
+    name: "profile"
+    md_bg_color: app.theme_cls.surfaceColor
+
+    MDBoxLayout:
+        orientation: "vertical"
+
+        # ── Barra superior ──
+        MDTopAppBar:
+            type: "small"
+
+            MDTopAppBarLeadingButtonContainer:
+                MDActionTopAppBarButton:
+                    icon: "arrow-left"
+                    on_release: app.go_back()
+
+            MDTopAppBarTitle:
+                text: "Mi Perfil"
+                pos_hint: {"center_x": 0.5}
+
+        ScrollView:
+            do_scroll_x: False
+            bar_width: "4dp"
+
+            MDBoxLayout:
+                orientation: "vertical"
+                spacing: "18dp"
+                padding: ["24dp", "20dp", "24dp", "30dp"]
+                adaptive_height: True
+
+                # Avatar / Ícono de Usuario
+                MDIcon:
+                    icon: "account-circle"
+                    font_size: "96sp"
+                    halign: "center"
+                    theme_text_color: "Custom"
+                    text_color: [1, 0.6, 0, 1]
+                    size_hint_y: None
+                    height: "100dp"
+
+                # Nombre del usuario
+                MDLabel:
+                    text: "Juan Pérez González"
+                    font_style: "Headline"
+                    role: "small"
+                    halign: "center"
+                    theme_text_color: "Primary"
+                    adaptive_height: True
+
+                # Correo y ubicación
+                MDLabel:
+                    text: "juan.perez@email.com\nTemuco, Región de La Araucanía"
+                    font_style: "Body"
+                    role: "medium"
+                    halign: "center"
+                    theme_text_color: "Secondary"
+                    adaptive_height: True
+
+                MDDivider:
+
+                # Tarjeta de Estadísticas Cívicas
+                MDCard:
+                    size_hint_x: 1
+                    size_hint_y: None
+                    height: "100dp"
+                    theme_bg_color: "Custom"
+                    md_bg_color: [0.15, 0.15, 0.2, 1]
+                    padding: "16dp"
+
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        spacing: "16dp"
+
+                        MDBoxLayout:
+                            orientation: "vertical"
+                            spacing: "4dp"
+                            pos_hint: {"center_y": 0.5}
+
+                            MDLabel:
+                                text: "3"
+                                font_style: "Headline"
+                                role: "medium"
+                                halign: "center"
+                                theme_text_color: "Custom"
+                                text_color: [1, 0.6, 0, 1]
+
+                            MDLabel:
+                                text: "Reportes enviados"
+                                font_style: "Label"
+                                role: "medium"
+                                halign: "center"
+                                theme_text_color: "Secondary"
+
+                        MDDivider:
+                            orientation: "vertical"
+
+                        MDBoxLayout:
+                            orientation: "vertical"
+                            spacing: "4dp"
+                            pos_hint: {"center_y": 0.5}
+
+                            MDLabel:
+                                text: "1"
+                                font_style: "Headline"
+                                role: "medium"
+                                halign: "center"
+                                theme_text_color: "Custom"
+                                text_color: [0.3, 0.9, 0.3, 1]
+
+                            MDLabel:
+                                text: "Baches reparados"
+                                font_style: "Label"
+                                role: "medium"
+                                halign: "center"
+                                theme_text_color: "Secondary"
+
+                # Información de cuenta
+                MDCard:
+                    size_hint_x: 1
+                    adaptive_height: True
+                    theme_bg_color: "Custom"
+                    md_bg_color: [0.13, 0.13, 0.16, 1]
+                    padding: "16dp"
+
+                    MDBoxLayout:
+                        orientation: "vertical"
+                        spacing: "8dp"
+                        adaptive_height: True
+
+                        MDLabel:
+                            text: "Detalles del Usuario"
+                            font_style: "Title"
+                            role: "small"
+                            theme_text_color: "Primary"
+                            adaptive_height: True
+
+                        MDLabel:
+                            text: "📱 Teléfono: +56 9 1234 5678\n🏙️ Sector: Av. Alemania\n🎖️ Rango: Vecino Activo"
+                            font_style: "Body"
+                            role: "medium"
+                            theme_text_color: "Secondary"
+                            adaptive_height: True
+
+                Widget:
+                    size_hint_y: None
+                    height: "10dp"
+
+                # Botón de Cerrar Sesión (Rojo)
+                MDButton:
+                    style: "filled"
+                    size_hint_x: 1
+                    theme_bg_color: "Custom"
+                    md_bg_color: [0.8, 0.25, 0.25, 1]
+                    on_release: app.logout()
+
+                    MDButtonIcon:
+                        icon: "logout"
+
+                    MDButtonText:
+                        text: "Cerrar Sesión"
+                        font_style: "Title"
+
+                Widget:
+                    size_hint_y: None
+                    height: "20dp"
