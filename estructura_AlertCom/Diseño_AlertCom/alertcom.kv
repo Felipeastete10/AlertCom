@@ -223,15 +223,14 @@
                     icon: "account-circle-outline"
                     on_release: app.go_to_screen("profile", "left")
 
-        # ── Zona del Mapa (simulación) ──
-        MDBoxLayout:
-            orientation: "vertical"
-            padding: "0dp"
+        # ── Zona del Mapa (simulación) con FAB flotante ──
+        MDFloatLayout:
+            id: map_container
 
             MDBoxLayout:
                 orientation: "vertical"
                 spacing: "8dp"
-                padding: ["20dp", "20dp", "20dp", "0dp"]
+                padding: ["20dp", "20dp", "20dp", "40dp"]
 
                 Widget:
                     size_hint_y: 0.05
@@ -342,25 +341,19 @@
                 Widget:
                     size_hint_y: 0.05
 
-        # ── Botón principal de reporte (CALL-TO-ACTION VISIBLE) ──
-        MDBoxLayout:
-            orientation: "vertical"
-            size_hint_y: None
-            height: "90dp"
-            padding: ["20dp", "8dp", "20dp", "8dp"]
+            # ── FAB extendido flotante sobre el mapa ──
+            MDExtendedFabButton:
+                style: "large"
+                fab_state: "expand"
+                size: "72dp", "72dp"
+                pos_hint: {"center_x": 0.5, "y": 0.04}
+                on_release: root.ir_a_reporte()
 
-            MDButton:
-                style: "filled"
-                size_hint_x: 1
-                size_hint_y: 1
-                pos_hint: {"center_x": 0.5}
-                on_release: app.go_to_screen("report", "left")
+                MDExtendedFabButtonIcon:
+                    icon: "plus"
 
-                MDButtonIcon:
-                    icon: "plus-circle"
-
-                MDButtonText:
-                    text: "+ Reportar bache"
+                MDExtendedFabButtonText:
+                    text: "Reportar bache"
                     font_style: "Title"
 
         # ── Barra de navegación inferior ──
@@ -812,6 +805,7 @@
 
                 # Avatar / Ícono de Usuario
                 MDIcon:
+                    id: profile_avatar
                     icon: "account-circle"
                     font_size: "96sp"
                     halign: "center"
@@ -822,16 +816,27 @@
 
                 # Nombre del usuario
                 MDLabel:
-                    text: "Juan Pérez González"
+                    id: profile_name
+                    text: "Usuario"
                     font_style: "Headline"
                     role: "small"
                     halign: "center"
                     theme_text_color: "Primary"
                     adaptive_height: True
 
-                # Correo y ubicación
+                # Correo del usuario (texto grande)
                 MDLabel:
-                    text: "juan.perez@email.com\nTemuco, Región de La Araucanía"
+                    id: profile_email
+                    text: "correo@ejemplo.cl"
+                    font_style: "Title"
+                    role: "large"
+                    halign: "center"
+                    theme_text_color: "Primary"
+                    adaptive_height: True
+
+                # Ubicación
+                MDLabel:
+                    text: "Temuco, Región de La Araucanía"
                     font_style: "Body"
                     role: "medium"
                     halign: "center"
@@ -933,7 +938,7 @@
                     size_hint_x: 1
                     theme_bg_color: "Custom"
                     md_bg_color: [0.8, 0.25, 0.25, 1]
-                    on_release: app.logout()
+                    on_release: root.cerrar_sesion()
 
                     MDButtonIcon:
                         icon: "logout"
