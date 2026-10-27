@@ -1,9 +1,11 @@
 # =============================================================================
 # AlertCom - Paquete de Modelos (MVC)
 # =============================================================================
-# Este paquete contendrá las clases de datos del dominio:
-#   - Usuario (responsabilidad de Allan)
-#   - Incidente (responsabilidad de Allan)
-#
-# NO agregar lógica de datos aquí hasta que Allan entregue sus clases.
+# Capa de dominio. Contiene únicamente clases de datos y reglas de negocio
+# pura. No importa módulos de Kivy/KivyMD ni de la interfaz gráfica.
 # =============================================================================
+
+from models.usuario import Usuario
+from models.incidente import Incidente
+
+__all__ = ["Usuario", "Incidente"]

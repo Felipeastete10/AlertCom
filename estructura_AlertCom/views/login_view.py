@@ -26,6 +26,19 @@ _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 class LoginScreen(MDScreen):
     """Pantalla 2 – Inicio de sesión (correo + contraseña)."""
 
+    def __init__(
+        self,
+        auth_controller=None,
+        usuario=None,
+        on_login_success=None,
+        **kwargs,
+    ) -> None:
+        # main.py inyecta el AuthController, el usuario demo y el callback
+        super().__init__(**kwargs)
+        self.auth_controller = auth_controller
+        self.usuario = usuario
+        self._on_login_success_callback = on_login_success
+
     # ------------------------------------------------------------------ #
     #  VALIDACIÓN VISUAL
     # ------------------------------------------------------------------ #
@@ -63,20 +76,37 @@ class LoginScreen(MDScreen):
         email = self.ids.email_field.text.strip()
         password = self.ids.password_field.text
 
-        # Si Felipe Astete / Roberto agregan un controlador de usuarios en la
-        # app (app.usuario_controller con iniciar_sesion(email, contrasena)),
-        # esta vista lo usa. Si no existe todavía, el login es simulado.
-        controller = getattr(app, "usuario_controller", None)
-        if controller is not None and hasattr(controller, "iniciar_sesion"):
-            if not controller.iniciar_sesion(email, password):
-                self.ids.error_label.text = "Correo o contraseña incorrectos"
+        # AuthController.iniciar_sesion devuelve (exito, mensaje). Si no hay
+        # controlador inyectado, el login es simulado.
+        if self.auth_controller is not None:
+            exito, mensaje = self.auth_controller.iniciar_sesion(email, password)
+            if not exito:
+                self.ids.error_label.text = mensaje or "Correo o contraseña incorrectos"
                 return
 
         self._limpiar_formulario()
-        app.go_to_screen("home", direction="left")
+        # El controlador deja la app en "safety" al validar; aquí se fuerza el Home
+        if callable(self._on_login_success_callback):
+            self._on_login_success_callback()
+        else:
+            app.go_to_screen("home", direction="left")
 
     def crear_cuenta(self) -> None:
-        """Registro aún no implementado en el MVP: entra igual que el login."""
+        """Crea la cuenta con el correo y la contraseña escritos y entra a la app."""
+        if not self._validar_campos():
+            return
+
+        email = self.ids.email_field.text.strip()
+        password = self.ids.password_field.text
+
+        registrar = getattr(self.auth_controller, "registrar", None)
+        if callable(registrar):
+            exito, mensaje = registrar(email, password)
+            if not exito:
+                self.ids.error_label.text = mensaje or "No se pudo crear la cuenta"
+                return
+
+        # Cuenta creada: inicia sesión con esas mismas credenciales
         self.validate_login()
 
     def _limpiar_formulario(self) -> None:

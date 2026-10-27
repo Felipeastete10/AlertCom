@@ -100,6 +100,10 @@ def _incidente_a_dict(incidente) -> dict:
 class HistoryScreen(MDScreen):
     """Pantalla 5 – Historial y trazabilidad de reportes ciudadanos."""
 
+    def __init__(self, incidente_controller=None, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.incidente_controller = incidente_controller
+
     # ------------------------------------------------------------------ #
     #  CICLO DE VIDA
     # ------------------------------------------------------------------ #
@@ -114,7 +118,7 @@ class HistoryScreen(MDScreen):
     def obtener_reportes(self) -> list:
         """Pide los reportes al controlador; si no existe, usa los de ejemplo."""
         app = MDApp.get_running_app()
-        controller = getattr(app, "incidente_controller", None)
+        controller = self.incidente_controller or getattr(app, "incidente_controller", None)
         if controller is not None and hasattr(controller, "obtener_historial"):
             # Más recientes primero
             return [_incidente_a_dict(i) for i in reversed(controller.obtener_historial())]

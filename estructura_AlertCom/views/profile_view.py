@@ -45,6 +45,11 @@ class ProfileScreen(MDScreen):
     reportes_enviados = StringProperty(str(ESTADISTICAS_DEMO["enviados"]))
     baches_reparados = StringProperty(str(ESTADISTICAS_DEMO["reparados"]))
 
+    def __init__(self, auth_controller=None, incidente_controller=None, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.auth_controller = auth_controller
+        self.incidente_controller = incidente_controller
+
     # ------------------------------------------------------------------ #
     #  CICLO DE VIDA
     # ------------------------------------------------------------------ #
@@ -61,8 +66,18 @@ class ProfileScreen(MDScreen):
         app = MDApp.get_running_app()
         usuario = getattr(app, "usuario_actual", None)
 
-        nombre = getattr(usuario, "nombre", None) or USUARIO_DEMO["nombre"]
-        email = getattr(usuario, "email", None) or USUARIO_DEMO["email"]
+        # Prioridad: sesión del AuthController > usuario_actual > datos demo
+        auth = self.auth_controller
+        nombre = (
+            getattr(auth, "usuario_nombre", None)
+            or getattr(usuario, "nombre", None)
+            or USUARIO_DEMO["nombre"]
+        )
+        email = (
+            getattr(auth, "usuario_email", None)
+            or getattr(usuario, "email", None)
+            or USUARIO_DEMO["email"]
+        )
 
         self.nombre = nombre
         self.email = email
@@ -70,7 +85,7 @@ class ProfileScreen(MDScreen):
 
     def cargar_estadisticas(self) -> None:
         app = MDApp.get_running_app()
-        controller = getattr(app, "incidente_controller", None)
+        controller = self.incidente_controller or getattr(app, "incidente_controller", None)
 
         if controller is None or not hasattr(controller, "obtener_historial"):
             self.reportes_enviados = str(ESTADISTICAS_DEMO["enviados"])
