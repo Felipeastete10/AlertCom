@@ -1,0 +1,196 @@
+# =============================================================================
+# AlertCom - profile.kv (KivyMD 2.0.1.dev0 / Material Design 3)
+# Pantalla 6: Perfil de usuario - Felipe Salazar
+# Los textos vienen de las propiedades de ProfileScreen (profile_view.py).
+# =============================================================================
+
+<ProfileScreen>:
+    md_bg_color: app.theme_cls.surfaceColor
+
+    MDBoxLayout:
+        orientation: "vertical"
+
+        # ── Barra superior ──
+        MDTopAppBar:
+            type: "small"
+
+            MDTopAppBarLeadingButtonContainer:
+                MDActionTopAppBarButton:
+                    icon: "arrow-left"
+                    on_release: app.go_back()
+
+            MDTopAppBarTitle:
+                text: "Mi Perfil"
+                pos_hint: {"center_x": 0.5}
+
+        ScrollView:
+            do_scroll_x: False
+            bar_width: "4dp"
+
+            MDBoxLayout:
+                orientation: "vertical"
+                spacing: "14dp"
+                padding: ["24dp", "12dp", "24dp", "20dp"]
+                adaptive_height: True
+
+                # ── Avatar circular con iniciales ──
+                MDCard:
+                    size_hint: None, None
+                    size: "88dp", "88dp"
+                    radius: [self.height / 2]
+                    pos_hint: {"center_x": 0.5}
+                    theme_bg_color: "Custom"
+                    md_bg_color: [1, 0.6, 0, 1]
+                    elevation_level: 0
+
+                    MDLabel:
+                        text: root.iniciales
+                        font_style: "Headline"
+                        role: "medium"
+                        bold: True
+                        halign: "center"
+                        valign: "center"
+                        theme_text_color: "Custom"
+                        text_color: [0.12, 0.12, 0.12, 1]
+
+                MDLabel:
+                    text: root.nombre
+                    font_style: "Headline"
+                    role: "small"
+                    halign: "center"
+                    theme_text_color: "Primary"
+                    adaptive_height: True
+
+                MDLabel:
+                    text: root.email + "\nTemuco, Región de La Araucanía"
+                    font_style: "Body"
+                    role: "medium"
+                    halign: "center"
+                    theme_text_color: "Secondary"
+                    adaptive_height: True
+
+                # ── Aporte cívico ──
+                MDCard:
+                    size_hint_y: None
+                    height: "92dp"
+                    theme_bg_color: "Custom"
+                    md_bg_color: [0.15, 0.15, 0.2, 1]
+                    padding: "12dp"
+
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        spacing: "12dp"
+
+                        MDBoxLayout:
+                            orientation: "vertical"
+
+                            MDLabel:
+                                text: root.reportes_enviados
+                                font_style: "Headline"
+                                role: "medium"
+                                bold: True
+                                halign: "center"
+                                theme_text_color: "Custom"
+                                text_color: [1, 0.6, 0, 1]
+
+                            MDLabel:
+                                text: "Reportes enviados"
+                                font_style: "Label"
+                                role: "medium"
+                                halign: "center"
+                                theme_text_color: "Secondary"
+
+                        MDDivider:
+                            orientation: "vertical"
+
+                        MDBoxLayout:
+                            orientation: "vertical"
+
+                            MDLabel:
+                                text: root.baches_reparados
+                                font_style: "Headline"
+                                role: "medium"
+                                bold: True
+                                halign: "center"
+                                theme_text_color: "Custom"
+                                text_color: [0.3, 0.85, 0.3, 1]
+
+                            MDLabel:
+                                text: "Baches reparados"
+                                font_style: "Label"
+                                role: "medium"
+                                halign: "center"
+                                theme_text_color: "Secondary"
+
+                # ── Mensaje comunitario ──
+                MDCard:
+                    size_hint_y: None
+                    height: comunidad.height + dp(28)
+                    theme_bg_color: "Custom"
+                    md_bg_color: [0.13, 0.13, 0.16, 1]
+                    padding: "14dp"
+
+                    MDBoxLayout:
+                        id: comunidad
+                        orientation: "horizontal"
+                        spacing: "12dp"
+                        adaptive_height: True
+
+                        MDIcon:
+                            icon: "medal-outline"
+                            theme_text_color: "Custom"
+                            text_color: [1, 0.6, 0, 1]
+                            size_hint_x: None
+                            width: "24dp"
+                            pos_hint: {"center_y": 0.5}
+
+                        MDLabel:
+                            text: "Vecino Activo: tus reportes ayudan a que Obras Públicas repare tu barrio."
+                            font_style: "Body"
+                            role: "medium"
+                            theme_text_color: "Secondary"
+                            adaptive_height: True
+
+                # ── Cerrar sesión (rojo) ──
+                MDButton:
+                    style: "filled"
+                    theme_width: "Custom"
+                    size_hint_x: 1
+                    theme_bg_color: "Custom"
+                    md_bg_color: [0.8, 0.25, 0.25, 1]
+                    on_release: root.cerrar_sesion()
+
+                    MDButtonIcon:
+                        icon: "logout"
+                        theme_icon_color: "Custom"
+                        icon_color: [1, 1, 1, 1]
+
+                    MDButtonText:
+                        text: "Cerrar Sesión"
+                        theme_text_color: "Custom"
+                        text_color: [1, 1, 1, 1]
+
+        # ── Barra de navegación inferior ──
+        MDNavigationBar:
+            id: nav_bar
+            on_switch_tabs: app.on_switch_tabs(*args)
+
+            MDNavigationItem:
+                MDNavigationItemIcon:
+                    icon: "home"
+                MDNavigationItemLabel:
+                    text: "Inicio"
+
+            MDNavigationItem:
+                MDNavigationItemIcon:
+                    icon: "clipboard-text-clock-outline"
+                MDNavigationItemLabel:
+                    text: "Mis Reportes"
+
+            MDNavigationItem:
+                id: nav_perfil
+                active: True
+                MDNavigationItemIcon:
+                    icon: "account-outline"
+                MDNavigationItemLabel:
+                    text: "Perfil"

@@ -1,0 +1,42 @@
+#:kivy 2.2.0
+<ReportScreen>:
+    MDBoxLayout:
+        orientation: "vertical"
+
+        MDTopAppBar:
+            title: "Nuevo Reporte"
+            left_action_items: [["arrow-left", lambda x: app.go_back()]]
+
+        ScrollView:
+            MDBoxLayout:
+                orientation: "vertical"
+                adaptive_height: True
+                spacing: "12dp"
+                padding: "16dp"
+
+                MDTextField:
+                    id: campo_tipo
+                    hint_text: "Tipo de incidente"
+                    readonly: True
+                    on_focus:
+                        if self.focus: root.abrir_menu_tipo(self)
+
+                MDTextField:
+                    id: campo_gravedad
+                    hint_text: "Gravedad"
+                    readonly: True
+                    on_focus:
+                        if self.focus: root.abrir_menu_gravedad(self)
+
+                MDTextField:
+                    id: campo_descripcion
+                    hint_text: "Descripción"
+                    multiline: True
+
+                MDButton:
+                    style: "filled"
+                    pos_hint: {"center_x": .5}
+                    on_release: root.enviar_reporte()
+
+                    MDButtonText:
+                        text: "Enviar"

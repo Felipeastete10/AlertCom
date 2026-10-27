@@ -1,0 +1,33 @@
+#:kivy 2.2.0
+
+<HomeScreen>:
+    MDBoxLayout:
+        orientation: "vertical"
+
+        # Mapa simulado
+        MDCard:
+            size_hint: 1, 1
+            md_bg_color: 0.9, 0.9, 0.9, 1
+            radius: [0]
+
+            MDLabel:
+                text: "Mapa simulado"
+                halign: "center"
+                theme_text_color: "Hint"
+
+        # Botón flotante "+ Reportar bache"
+        MDButton:
+            style: "elevated"
+            pos_hint: {"center_x": .5, "center_y": .12}
+            size_hint: None, None
+            size: "220dp", "56dp"
+            md_bg_color: 0.8, 0.1, 0.1, 1
+
+            MDButtonIcon:
+                icon: "plus"
+
+            MDButtonText:
+                text: "Reportar bache"
+
+            on_release:
+                root.ir_a_reporte()
