@@ -1,0 +1,117 @@
+# =============================================================================
+# AlertCom - safety.kv (KivyMD 2.0.1.dev0 / Material Design 3)
+# Pantalla 1: Aviso de seguridad - Felipe Salazar
+# =============================================================================
+
+<SafetyScreen>:
+    md_bg_color: app.theme_cls.surfaceColor
+
+    MDBoxLayout:
+        orientation: "vertical"
+
+        ScrollView:
+            do_scroll_x: False
+            bar_width: "4dp"
+
+            MDBoxLayout:
+                orientation: "vertical"
+                adaptive_height: True
+                spacing: "14dp"
+                padding: ["28dp", "36dp", "28dp", "16dp"]
+
+                # Ícono principal de advertencia
+                MDIcon:
+                    icon: "shield-car"
+                    theme_font_size: "Custom"
+                    font_size: "80sp"
+                    pos_hint: {"center_x": 0.5}
+                    theme_text_color: "Custom"
+                    text_color: [1, 0.6, 0, 1]
+
+                MDLabel:
+                    text: "Tu seguridad es lo primero"
+                    font_style: "Headline"
+                    role: "small"
+                    halign: "center"
+                    theme_text_color: "Primary"
+                    adaptive_height: True
+
+                MDLabel:
+                    text: "No utilices AlertCom\nmientras conduces"
+                    font_style: "Title"
+                    role: "large"
+                    bold: True
+                    halign: "center"
+                    theme_text_color: "Custom"
+                    text_color: [1, 0.6, 0, 1]
+                    adaptive_height: True
+
+                # Tarjeta de recomendaciones de uso responsable
+                MDCard:
+                    size_hint_x: 1
+                    size_hint_y: None
+                    height: tips.height + dp(32)
+                    theme_bg_color: "Custom"
+                    md_bg_color: [0.15, 0.15, 0.2, 1]
+                    padding: "16dp"
+
+                    MDBoxLayout:
+                        id: tips
+                        orientation: "vertical"
+                        adaptive_height: True
+                        spacing: "12dp"
+
+                        SafetyTip:
+                            icon: "car-brake-parking"
+                            text: "Estaciona en un lugar seguro antes de reportar."
+
+                        SafetyTip:
+                            icon: "account-group-outline"
+                            text: "Si vas de copiloto o en micro, puedes reportar sin riesgo."
+
+                        SafetyTip:
+                            icon: "walk"
+                            text: "A pie, no te detengas en la calzada para tomar la foto."
+
+        # Botón fijo abajo: siempre visible aunque la pantalla sea chica
+        MDBoxLayout:
+            size_hint_y: None
+            height: "76dp"
+            padding: ["28dp", "10dp", "28dp", "18dp"]
+
+            MDButton:
+                style: "filled"
+                theme_width: "Custom"
+                size_hint_x: 1
+                on_release: root.aceptar_aviso()
+
+                MDButtonIcon:
+                    icon: "check-circle-outline"
+
+                MDButtonText:
+                    text: "Entendido"
+
+
+# Fila reutilizable: ícono + texto de una recomendación
+<SafetyTip@MDBoxLayout>:
+    icon: ""
+    text: ""
+    orientation: "horizontal"
+    spacing: "12dp"
+    adaptive_height: True
+
+    MDIcon:
+        icon: root.icon
+        theme_text_color: "Custom"
+        text_color: [1, 0.6, 0, 1]
+        size_hint_x: None
+        width: "24dp"
+        pos_hint: {"center_y": 0.5}
+
+    MDLabel:
+        text: root.text
+        font_style: "Body"
+        role: "medium"
+        theme_text_color: "Secondary"
+        adaptive_height: True
+        pos_hint: {"center_y": 0.5}

@@ -1,0 +1,118 @@
+# =============================================================================
+# AlertCom - login.kv (KivyMD 2.0.1.dev0 / Material Design 3)
+# Pantalla 2: Inicio de sesión - Felipe Salazar
+# =============================================================================
+
+<LoginScreen>:
+    md_bg_color: app.theme_cls.surfaceColor
+
+    ScrollView:
+        do_scroll_x: False
+        bar_width: "4dp"
+
+        MDBoxLayout:
+            orientation: "vertical"
+            adaptive_height: True
+            spacing: "14dp"
+            padding: ["28dp", "48dp", "28dp", "24dp"]
+
+            MDIcon:
+
+                icon: "map-marker-alert"
+
+                theme_font_size: "Custom"
+
+                font_size: "64sp"
+
+                pos_hint: {"center_x": 0.5}
+                theme_text_color: "Custom"
+                text_color: [1, 0.6, 0, 1]
+
+            MDLabel:
+                text: "AlertCom"
+                font_style: "Display"
+                role: "small"
+                halign: "center"
+                theme_text_color: "Primary"
+                adaptive_height: True
+
+            MDLabel:
+                text: "Reporta. Ubica. Mejora."
+                font_style: "Body"
+                role: "large"
+                halign: "center"
+                theme_text_color: "Secondary"
+                adaptive_height: True
+
+            Widget:
+                size_hint_y: None
+                height: "12dp"
+
+            MDTextField:
+                id: email_field
+                mode: "outlined"
+                size_hint_x: 1
+                on_text: root.limpiar_error(self)
+
+                MDTextFieldLeadingIcon:
+                    icon: "email-outline"
+
+                MDTextFieldHintText:
+                    text: "Correo electrónico"
+
+                MDTextFieldHelperText:
+                    text: "Ingresa un correo válido (ej: nombre@correo.cl)"
+                    mode: "on_error"
+
+            MDTextField:
+                id: password_field
+                mode: "outlined"
+                size_hint_x: 1
+                password: True
+                on_text: root.limpiar_error(self)
+                on_text_validate: root.validate_login()
+
+                MDTextFieldLeadingIcon:
+                    icon: "lock-outline"
+
+                MDTextFieldHintText:
+                    text: "Contraseña"
+
+                MDTextFieldHelperText:
+                    text: "Mínimo 4 caracteres"
+                    mode: "on_error"
+
+            # Mensaje de error general (credenciales rechazadas)
+            MDLabel:
+                id: error_label
+                text: ""
+                font_style: "Body"
+                role: "small"
+                halign: "center"
+                theme_text_color: "Error"
+                size_hint_y: None
+                height: self.texture_size[1] if self.text else 0
+
+            MDButton:
+                style: "filled"
+                theme_width: "Custom"
+                size_hint_x: 1
+                on_release: root.validate_login()
+
+                MDButtonIcon:
+                    icon: "login"
+
+                MDButtonText:
+                    text: "Iniciar Sesión"
+
+            MDButton:
+                style: "outlined"
+                theme_width: "Custom"
+                size_hint_x: 1
+                on_release: root.crear_cuenta()
+
+                MDButtonIcon:
+                    icon: "account-plus-outline"
+
+                MDButtonText:
+                    text: "Crear Cuenta"

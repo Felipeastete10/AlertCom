@@ -1,0 +1,112 @@
+# =============================================================================
+# AlertCom - history.kv (KivyMD 2.0.1.dev0 / Material Design 3)
+# Pantalla 5: Historial / Mis Reportes - Felipe Salazar
+# La lista se llena desde history_view.py (cargar_historial).
+# =============================================================================
+
+<HistoryScreen>:
+    md_bg_color: app.theme_cls.surfaceColor
+
+    MDBoxLayout:
+        orientation: "vertical"
+
+        # ── Barra superior ──
+        MDTopAppBar:
+            type: "small"
+
+            MDTopAppBarLeadingButtonContainer:
+                MDActionTopAppBarButton:
+                    icon: "arrow-left"
+                    on_release: app.go_back()
+
+            MDTopAppBarTitle:
+                text: "Mis Reportes"
+                pos_hint: {"center_x": 0.5}
+
+        # ── Contadores de estado ──
+        MDBoxLayout:
+            orientation: "horizontal"
+            spacing: "10dp"
+            padding: ["16dp", "8dp", "16dp", "8dp"]
+            size_hint_y: None
+            height: "84dp"
+
+            HistoryCounter:
+                id: total_card
+                titulo: "Total"
+                color: [1, 0.6, 0, 1]
+
+            HistoryCounter:
+                id: revision_card
+                titulo: "En revisión"
+                color: [1, 0.75, 0.2, 1]
+
+            HistoryCounter:
+                id: reparados_card
+                titulo: "Reparados"
+                color: [0.3, 0.85, 0.3, 1]
+
+        MDDivider:
+
+        # ── Lista de reportes (se llena desde Python) ──
+        ScrollView:
+            do_scroll_x: False
+            bar_width: "4dp"
+
+            MDList:
+                id: lista_reportes
+                padding: ["0dp", "4dp", "0dp", "8dp"]
+
+        # ── Barra de navegación inferior ──
+        MDNavigationBar:
+            id: nav_bar
+            on_switch_tabs: app.on_switch_tabs(*args)
+
+            MDNavigationItem:
+                MDNavigationItemIcon:
+                    icon: "home"
+                MDNavigationItemLabel:
+                    text: "Inicio"
+
+            MDNavigationItem:
+                id: nav_reportes
+                active: True
+                MDNavigationItemIcon:
+                    icon: "clipboard-text-clock-outline"
+                MDNavigationItemLabel:
+                    text: "Mis Reportes"
+
+            MDNavigationItem:
+                MDNavigationItemIcon:
+                    icon: "account-outline"
+                MDNavigationItemLabel:
+                    text: "Perfil"
+
+
+# Tarjeta de contador reutilizable (número grande + título)
+<HistoryCounter@MDCard>:
+    titulo: ""
+    valor: "0"
+    color: [1, 1, 1, 1]
+    theme_bg_color: "Custom"
+    md_bg_color: [0.15, 0.15, 0.2, 1]
+    padding: "6dp"
+
+    MDBoxLayout:
+        orientation: "vertical"
+
+        MDLabel:
+            text: root.valor
+            font_style: "Headline"
+            role: "small"
+            bold: True
+            halign: "center"
+            theme_text_color: "Custom"
+            text_color: root.color
+
+        MDLabel:
+            text: root.titulo
+            font_style: "Label"
+            role: "medium"
+            halign: "center"
+            theme_text_color: "Secondary"

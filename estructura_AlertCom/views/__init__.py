@@ -10,14 +10,17 @@
 #   - Felipe Salazar: ReportScreen, HistoryScreen, ProfileScreen
 # =============================================================================
 
+# Pantallas de Nico (todavía esqueleto en screens.py)
 from views.screens import (
-    SafetyScreen,
-    LoginScreen,
     HomeScreen,
     ReportScreen,
-    HistoryScreen,
-    ProfileScreen,
 )
+
+# Pantallas de Felipe Salazar (feature/vistas-soporte)
+from views.safety_view import SafetyScreen
+from views.login_view import LoginScreen
+from views.history_view import HistoryScreen
+from views.profile_view import ProfileScreen
 
 __all__ = [
     "SafetyScreen",
