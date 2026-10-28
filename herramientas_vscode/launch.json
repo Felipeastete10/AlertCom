@@ -1,0 +1,30 @@
+{
+  // Depurador de VS Code para AlertCom (Sesión 23).
+  // 1. Haz clic a la izquierda del número de línea para poner un punto rojo (breakpoint).
+  // 2. Pestaña "Ejecutar y depurar" (Ctrl+Shift+D) → elige una configuración → F5.
+  // 3. F10 = siguiente línea · F11 = entrar a la función · F5 = continuar.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "AlertCom: ejecutar app",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/estructura_AlertCom/main.py",
+      "cwd": "${workspaceFolder}/estructura_AlertCom",
+      "python": "${workspaceFolder}/entorno_alertcom/Scripts/python.exe",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "AlertCom: pruebas E3",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "unittest",
+      "args": ["discover", "-s", "pruebas", "-v"],
+      "cwd": "${workspaceFolder}/estructura_AlertCom",
+      "python": "${workspaceFolder}/entorno_alertcom/Scripts/python.exe",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    }
+  ]
+}

@@ -1,4 +1,5 @@
-# Entorno virtual
+# Entornos virtuales (no se suben: cada integrante crea el suyo)
+entorno_alertcom/
 myenv/
 venv/
 env/
@@ -10,8 +11,17 @@ __pycache__/
 *.pyo
 *.pyd
 
-# VS Code
-.vscode/
+# Datos locales de la app (usuarios con hashes, reportes, logs)
+estructura_AlertCom/datos/
+*.log
+*.tmp
+
+# Caché de tiles del mapa (kivy_garden.mapview)
+cache/
+
+# VS Code (se comparte solo la configuración del depurador)
+.vscode/*
+!.vscode/launch.json
 
 # Archivos del sistema
 .DS_Store
