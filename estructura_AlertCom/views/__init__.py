@@ -1,23 +1,16 @@
 # =============================================================================
-# AlertCom - Paquete de Vistas (MVC)
+# AlertCom - Capa de Vistas (MVC)
 # =============================================================================
-# Contiene las pantallas (MDScreen) de la aplicación.
-# Las vistas solo capturan eventos de usuario y los delegan a los
-# controladores inyectados desde main.py. No contienen lógica de negocio.
+# Única capa que maneja la interfaz gráfica:
+#   • kv/            → diseño declarativo de cada pantalla
+#   • pantallas/     → clases MDScreen (qué pasa al tocar algo)
+#   • componentes/   → piezas reutilizables (diálogos, avisos)
+#   • navegador.py   → cambio de pantalla y rutas protegidas
+#   • gestor_pantallas.py → arma el ScreenManager
+# Las vistas solo muestran datos y capturan eventos; las reglas de negocio
+# viven en controllers/.
 # =============================================================================
 
-from views.safety_view import SafetyScreen
-from views.login_view import LoginScreen
-from views.Home_views import HomeScreen
-from views.report_view import ReportScreen
-from views.history_view import HistoryScreen
-from views.profile_view import ProfileScreen
+from views.gestor_pantallas import crear_gestor_pantallas
 
-__all__ = [
-    "SafetyScreen",
-    "LoginScreen",
-    "HomeScreen",
-    "ReportScreen",
-    "HistoryScreen",
-    "ProfileScreen",
-]
+__all__ = ["crear_gestor_pantallas"]

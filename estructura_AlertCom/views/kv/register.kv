@@ -1,0 +1,103 @@
+#:kivy 2.3.1
+
+# AlertCom - Pantalla 2b: Crear cuenta
+# Lógica de esta pantalla: views/pantallas/register_view.py
+
+<RegisterScreen>:
+    md_bg_color: app.theme_cls.surfaceColor
+
+    MDBoxLayout:
+        orientation: "vertical"
+
+        MDTopAppBar:
+            type: "small"
+
+            MDTopAppBarLeadingButtonContainer:
+                MDActionTopAppBarButton:
+                    icon: "arrow-left"
+                    on_release: root.volver()
+
+            MDTopAppBarTitle:
+                text: "Crear Cuenta"
+                pos_hint: {"center_x": 0.5}
+
+        ScrollView:
+            do_scroll_x: False
+
+            MDBoxLayout:
+                orientation: "vertical"
+                spacing: "16dp"
+                padding: ["24dp", "20dp", "24dp", "30dp"]
+                adaptive_height: True
+
+                MDLabel:
+                    text: "Únete a tu comunidad y ayuda a reparar las calles de Temuco."
+                    font_style: "Body"
+                    role: "large"
+                    halign: "center"
+                    theme_text_color: "Secondary"
+                    adaptive_height: True
+
+                MDTextField:
+                    id: reg_nombre
+                    mode: "outlined"
+                    write_tab: False
+
+                    MDTextFieldLeadingIcon:
+                        icon: "account-outline"
+
+                    MDTextFieldHintText:
+                        text: "Nombre completo"
+
+                MDTextField:
+                    id: reg_email
+                    mode: "outlined"
+                    write_tab: False
+
+                    MDTextFieldLeadingIcon:
+                        icon: "email-outline"
+
+                    MDTextFieldHintText:
+                        text: "Correo electrónico"
+
+                MDTextField:
+                    id: reg_contrasena
+                    mode: "outlined"
+                    password: True
+                    write_tab: False
+
+                    MDTextFieldLeadingIcon:
+                        icon: "lock-outline"
+
+                    MDTextFieldHintText:
+                        text: "Contraseña"
+
+                    MDTextFieldHelperText:
+                        text: "Mínimo 6 caracteres"
+                        mode: "persistent"
+
+                MDTextField:
+                    id: reg_confirmacion
+                    mode: "outlined"
+                    password: True
+                    write_tab: False
+                    on_text_validate: root.registrar()
+
+                    MDTextFieldLeadingIcon:
+                        icon: "lock-check-outline"
+
+                    MDTextFieldHintText:
+                        text: "Repite la contraseña"
+
+                MDButton:
+                    style: "filled"
+                    theme_width: "Custom"
+                    size_hint_x: 1
+                    on_release: root.registrar()
+
+                    MDButtonIcon:
+                        icon: "account-check-outline"
+
+                    MDButtonText:
+                        pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                        text: "Crear mi cuenta"

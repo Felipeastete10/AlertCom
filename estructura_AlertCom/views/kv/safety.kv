@@ -1,0 +1,76 @@
+#:kivy 2.3.1
+
+# AlertCom - Pantalla 1: Aviso de seguridad
+# Lógica de esta pantalla: views/pantallas/safety_view.py
+
+<SafetyScreen>:
+    md_bg_color: app.theme_cls.surfaceColor
+
+    MDBoxLayout:
+        orientation: "vertical"
+        spacing: "20dp"
+        padding: ["30dp", "40dp", "30dp", "40dp"]
+
+        Widget:
+            size_hint_y: 0.15
+
+        MDIcon:
+            icon: "shield-car"
+            font_size: "80sp"
+            pos_hint: {"center_x": 0.5}
+            theme_text_color: "Custom"
+            text_color: [1, 0.6, 0, 1]
+            size_hint_y: None
+            height: "100dp"
+
+        MDLabel:
+            text: "Tu seguridad es lo primero"
+            font_style: "Headline"
+            role: "medium"
+            halign: "center"
+            theme_text_color: "Primary"
+            adaptive_height: True
+
+        MDLabel:
+            text: "No utilices AlertCom\nmientras conduces"
+            font_style: "Title"
+            role: "large"
+            halign: "center"
+            theme_text_color: "Secondary"
+            adaptive_height: True
+
+        MDIcon:
+            icon: "car-brake-alert"
+            font_size: "48sp"
+            pos_hint: {"center_x": 0.5}
+            theme_text_color: "Custom"
+            text_color: [0.8, 0.3, 0.3, 1]
+            size_hint_y: None
+            height: "60dp"
+
+        # Texto configurable remotamente (Sesión 22)
+        MDLabel:
+            text: app.mensaje_seguridad
+            font_style: "Body"
+            role: "large"
+            halign: "center"
+            theme_text_color: "Secondary"
+            adaptive_height: True
+
+        Widget:
+            size_hint_y: 0.1
+
+        MDButton:
+            style: "filled"
+            theme_width: "Custom"
+            size_hint_x: 0.85
+            pos_hint: {"center_x": 0.5}
+            on_release: root.ir_a_login()
+
+            MDButtonText:
+                pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                text: "Entendido"
+                font_style: "Title"
+
+        Widget:
+            size_hint_y: 0.05

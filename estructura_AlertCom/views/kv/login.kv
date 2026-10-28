@@ -1,0 +1,105 @@
+#:kivy 2.3.1
+
+# AlertCom - Pantalla 2: Inicio de sesión
+# Lógica de esta pantalla: views/pantallas/login_view.py
+
+<LoginScreen>:
+    md_bg_color: app.theme_cls.surfaceColor
+
+    MDBoxLayout:
+        orientation: "vertical"
+        spacing: "16dp"
+        padding: ["30dp", "40dp", "30dp", "30dp"]
+
+        Widget:
+            size_hint_y: 0.1
+
+        MDIcon:
+            icon: "map-marker-alert"
+            font_size: "64sp"
+            pos_hint: {"center_x": 0.5}
+            theme_text_color: "Custom"
+            text_color: [1, 0.6, 0, 1]
+            size_hint_y: None
+            height: "80dp"
+
+        MDLabel:
+            text: "AlertCom"
+            font_style: "Display"
+            role: "small"
+            halign: "center"
+            theme_text_color: "Primary"
+            adaptive_height: True
+
+        MDLabel:
+            text: "Reporta. Ubica. Mejora."
+            font_style: "Body"
+            role: "large"
+            halign: "center"
+            theme_text_color: "Secondary"
+            adaptive_height: True
+
+        Widget:
+            size_hint_y: 0.05
+
+        MDTextField:
+            id: email_field
+            mode: "outlined"
+            size_hint_x: 0.95
+            pos_hint: {"center_x": 0.5}
+            write_tab: False
+
+            MDTextFieldLeadingIcon:
+                icon: "email-outline"
+
+            MDTextFieldHintText:
+                text: "Correo electrónico"
+
+        MDTextField:
+            id: password_field
+            mode: "outlined"
+            size_hint_x: 0.95
+            pos_hint: {"center_x": 0.5}
+            password: True
+            write_tab: False
+            on_text_validate: root.validate_login()
+
+            MDTextFieldLeadingIcon:
+                icon: "lock-outline"
+
+            MDTextFieldHintText:
+                text: "Contraseña"
+
+        Widget:
+            size_hint_y: 0.04
+
+        MDButton:
+            style: "filled"
+            theme_width: "Custom"
+            size_hint_x: 0.95
+            pos_hint: {"center_x": 0.5}
+            on_release: root.validate_login()
+
+            MDButtonIcon:
+                icon: "login"
+
+            MDButtonText:
+                pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                text: "Iniciar Sesión"
+
+        MDButton:
+            style: "outlined"
+            theme_width: "Custom"
+            size_hint_x: 0.95
+            pos_hint: {"center_x": 0.5}
+            on_release: root.ir_a_registro()
+
+            MDButtonIcon:
+                icon: "account-plus-outline"
+
+            MDButtonText:
+                pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                text: "Crear Cuenta"
+
+        Widget:
+            size_hint_y: 0.1

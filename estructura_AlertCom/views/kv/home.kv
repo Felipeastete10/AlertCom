@@ -1,0 +1,171 @@
+#:kivy 2.3.1
+
+# AlertCom - Pantalla 3: Mapa (Home)
+# Lógica de esta pantalla: views/pantallas/home_view.py
+
+<HomeScreen>:
+    md_bg_color: app.theme_cls.surfaceColor
+
+    MDBoxLayout:
+        orientation: "vertical"
+
+        MDTopAppBar:
+            type: "small"
+
+            MDTopAppBarTitle:
+                text: "AlertCom"
+                pos_hint: {"center_x": 0.5}
+
+            MDTopAppBarTrailingButtonContainer:
+                MDActionTopAppBarButton:
+                    icon: "account-circle-outline"
+                    on_release: app.navegacion.ir_a("profile", "left")
+
+        # ── Zona del mapa. Orden de dibujo: lo primero queda abajo. ──
+        MDFloatLayout:
+            id: map_container
+
+            # Simulación (se elimina si kivy_garden.mapview está instalado)
+            MDBoxLayout:
+                id: simulacion_mapa
+                orientation: "vertical"
+                spacing: "8dp"
+                padding: ["20dp", "70dp", "20dp", "110dp"]
+
+                MDIcon:
+                    icon: "map-outline"
+                    font_size: "110sp"
+                    pos_hint: {"center_x": 0.5}
+                    theme_text_color: "Custom"
+                    text_color: [0.4, 0.6, 0.4, 0.5]
+                    size_hint_y: None
+                    height: "130dp"
+
+                MDLabel:
+                    text: "Mapa de Temuco"
+                    font_style: "Title"
+                    role: "large"
+                    halign: "center"
+                    theme_text_color: "Secondary"
+                    adaptive_height: True
+
+                MDLabel:
+                    text: "Instala kivy_garden.mapview para ver el mapa real"
+                    font_style: "Body"
+                    role: "medium"
+                    halign: "center"
+                    theme_text_color: "Secondary"
+                    adaptive_height: True
+
+                Widget:
+
+            # Banner con texto remoto (Sesión 22)
+            MDCard:
+                size_hint: 0.94, None
+                height: "56dp"
+                pos_hint: {"center_x": 0.5, "top": 0.98}
+                padding: ["12dp", "8dp"]
+                spacing: "10dp"
+                theme_bg_color: "Custom"
+                md_bg_color: [0.12, 0.12, 0.15, 0.92]
+
+                MDIcon:
+                    icon: "bullhorn-outline"
+                    theme_text_color: "Custom"
+                    text_color: [1, 0.6, 0, 1]
+                    pos_hint: {"center_y": 0.5}
+
+                MDLabel:
+                    text: app.mensaje_banner
+                    font_style: "Body"
+                    role: "medium"
+                    theme_text_color: "Custom"
+                    text_color: [1, 1, 1, 1]
+                    shorten: True
+                    shorten_from: "right"
+
+            # Leyenda de colores
+            MDCard:
+                size_hint: None, None
+                size: "300dp", "30dp"
+                pos_hint: {"center_x": 0.5, "y": 0.2}
+                padding: ["10dp", "4dp"]
+                spacing: "6dp"
+                theme_bg_color: "Custom"
+                md_bg_color: [0.12, 0.12, 0.15, 0.85]
+
+                MDIcon:
+                    icon: "circle"
+                    font_size: "12sp"
+                    theme_text_color: "Custom"
+                    text_color: [0.9, 0.28, 0.28, 1]
+                    pos_hint: {"center_y": 0.5}
+                MDLabel:
+                    text: "Pendiente"
+                    font_style: "Label"
+                    role: "small"
+                    theme_text_color: "Custom"
+                    text_color: [1, 1, 1, 0.85]
+
+                MDIcon:
+                    icon: "circle"
+                    font_size: "12sp"
+                    theme_text_color: "Custom"
+                    text_color: [0.96, 0.62, 0.04, 1]
+                    pos_hint: {"center_y": 0.5}
+                MDLabel:
+                    text: "En revisión"
+                    font_style: "Label"
+                    role: "small"
+                    theme_text_color: "Custom"
+                    text_color: [1, 1, 1, 0.85]
+
+                MDIcon:
+                    icon: "circle"
+                    font_size: "12sp"
+                    theme_text_color: "Custom"
+                    text_color: [0.2, 0.66, 0.33, 1]
+                    pos_hint: {"center_y": 0.5}
+                MDLabel:
+                    text: "Reparado"
+                    font_style: "Label"
+                    role: "small"
+                    theme_text_color: "Custom"
+                    text_color: [1, 1, 1, 0.85]
+
+            # Botón principal (texto configurable remotamente)
+            MDExtendedFabButton:
+                style: "large"
+                fab_state: "expand"
+                pos_hint: {"center_x": 0.5, "y": 0.04}
+                on_release: root.ir_a_reporte()
+
+                MDExtendedFabButtonIcon:
+                    icon: "plus"
+
+                MDExtendedFabButtonText:
+                    text: app.texto_boton_reporte
+
+        MDNavigationBar:
+            id: barra_navegacion
+            on_switch_tabs: app.navegacion.al_cambiar_pestana(*args)
+
+            MDNavigationItem:
+                id: item_inicio
+                active: True
+                MDNavigationItemIcon:
+                    icon: "home"
+                MDNavigationItemLabel:
+                    text: "Inicio"
+
+            MDNavigationItem:
+                MDNavigationItemIcon:
+                    icon: "clipboard-text-clock-outline"
+                MDNavigationItemLabel:
+                    text: "Mis Reportes"
+
+            MDNavigationItem:
+                MDNavigationItemIcon:
+                    icon: "account-outline"
+                MDNavigationItemLabel:
+                    text: "Perfil"

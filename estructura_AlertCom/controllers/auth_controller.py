@@ -1,70 +1,115 @@
 # =============================================================================
 # AlertCom - Controlador: Autenticación de Usuarios
 # =============================================================================
-# Gestiona el inicio y cierre de sesión.
-# Compatible con KivyMD 2.0.1.dev0: no importa KivyMD; solo usa
-# kivy.app.App para acceder al ScreenManager y cambiar de pantalla.
+# Valida credenciales contra usuarios.json, registra cuentas nuevas y guarda
+# quién tiene la sesión abierta.
+#
+# Reglas:
+#   • NO navega entre pantallas (eso lo hace views/navegador.py).
+#   • NO importa Kivy: solo responde (exito, mensaje_de_error).
+#   • NO guarda contraseñas en texto plano (ver models/usuario.py).
 # =============================================================================
 
-from kivy.app import App
+import logging
+import re
+
+from config import USUARIOS_DEMO
+from controllers.almacenamiento_json import AlmacenamientoJSON
+from models.usuario import Usuario
+
+log = logging.getLogger("alertcom.auth")
+
+PATRON_EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+LARGO_MIN_CONTRASENA = 6
+MENSAJE_CREDENCIALES = "Correo o contraseña incorrectos. Intenta nuevamente."
 
 
 class AuthController:
-    """
-    Controlador de autenticación.
+    """Inicio de sesión, registro y cierre de sesión."""
 
-    Responsabilidades:
-      • Validar credenciales (mock MVP contra el administrador).
-      • Cambiar la pantalla activa al iniciar sesión exitosamente.
-      • Retornar un error a la vista para que ésta lo notifique al usuario.
-    """
+    def __init__(self, almacenamiento: AlmacenamientoJSON) -> None:
+        self.almacenamiento = almacenamiento
+        self.usuarios: list[Usuario] = self._cargar_usuarios()
+        self.usuario_actual: Usuario | None = None
 
-    # Credenciales temporales para pruebas sin backend (MVP)
-    ADMIN_EMAIL = "admin@gmail.com"
-    ADMIN_PASSWORD = "123456"
+    # ------------------------------------------------------------------
+    # Persistencia
+    # ------------------------------------------------------------------
+    def _cargar_usuarios(self) -> list[Usuario]:
+        registros = self.almacenamiento.cargar()
 
-    def __init__(self) -> None:
-        self.usuario_autenticado: bool = False
-        self.usuario_nombre: str | None = None
-        self.usuario_email: str | None = None
+        if not registros:
+            # Instalación nueva: se crean las cuentas demo y se guardan.
+            log.info("Creando usuarios.json con las cuentas de demostración.")
+            registros = [dict(u) for u in USUARIOS_DEMO]
+            self.almacenamiento.guardar(registros)
 
+        usuarios = []
+        for datos in registros:
+            try:
+                usuarios.append(Usuario.from_dict(datos))
+            except (KeyError, ValueError, TypeError) as error:
+                log.warning("Usuario inválido en JSON, se omite: %s", error)
+        return usuarios
+
+    def _guardar_usuarios(self) -> None:
+        self.almacenamiento.guardar([u.to_dict() for u in self.usuarios])
+
+    def _buscar_por_email(self, email: str) -> Usuario | None:
+        email = email.strip().lower()
+        return next((u for u in self.usuarios if u.email == email), None)
+
+    # ------------------------------------------------------------------
+    # Casos de uso
+    # ------------------------------------------------------------------
     def iniciar_sesion(self, correo: str, contrasena: str) -> tuple[bool, str | None]:
         """
-        Valida las credenciales y, si son correctas, navega a la pantalla "safety".
-
-        Args:
-            correo: Correo electrónico del usuario.
-            contrasena: Contraseña en texto plano.
-
         Returns:
-            Tupla (exito, mensaje).
-            - exito=True: login válido, la app ya navegó a 'safety', mensaje=None.
-            - exito=False: credenciales inválidas, mensaje contiene el error que
-              la vista debe mostrar al usuario.
+            (True, None) si las credenciales son válidas.
+            (False, mensaje) si no lo son. El mensaje es genérico a propósito:
+            no revela si el correo existe.
         """
-        # Validación mock: administrador
-        if correo == self.ADMIN_EMAIL and contrasena == self.ADMIN_PASSWORD:
-            self.usuario_autenticado = True
-            self.usuario_nombre = "Administrador"
-            self.usuario_email = correo
+        if not correo.strip() or not contrasena:
+            return False, "Ingresa tu correo y tu contraseña."
 
-            # Navegar al aviso de seguridad mediante el ScreenManager de la app
-            app = App.get_running_app()
-            if app is not None and app.root is not None:
-                app.root.current = "safety"
+        usuario = self._buscar_por_email(correo)
+        if usuario is None or not usuario.verificar_contrasena(contrasena):
+            log.info("Intento de inicio de sesión fallido.")
+            return False, MENSAJE_CREDENCIALES
 
-            print("Login exitoso: navegando a pantalla 'safety'.")
-            return True, None
+        self.usuario_actual = usuario
+        log.info("Sesión iniciada (usuario id=%s).", usuario.id_usuario)
+        return True, None
 
-        # Credenciales incorrectas → retornar error a la vista
-        mensaje = "Correo o contraseña incorrectos. Intente nuevamente."
-        print(f"Error de login: {mensaje}")
-        return False, mensaje
+    def registrar(
+        self, nombre: str, correo: str, contrasena: str, confirmacion: str
+    ) -> tuple[bool, str | None]:
+        """Crea una cuenta de vecino, la guarda en usuarios.json y abre sesión."""
+        nombre = nombre.strip()
+        correo = correo.strip().lower()
+
+        if not nombre or not correo or not contrasena:
+            return False, "Completa nombre, correo y contraseña."
+        if not PATRON_EMAIL.match(correo):
+            return False, "El correo no tiene un formato válido."
+        if len(contrasena) < LARGO_MIN_CONTRASENA:
+            return False, f"La contraseña debe tener al menos {LARGO_MIN_CONTRASENA} caracteres."
+        if contrasena != confirmacion:
+            return False, "Las contraseñas no coinciden."
+        if self._buscar_por_email(correo) is not None:
+            return False, "Ya existe una cuenta con ese correo."
+
+        nuevo_id = max((u.id_usuario for u in self.usuarios), default=0) + 1
+        usuario = Usuario.crear(nuevo_id, nombre, correo, contrasena, rol="vecino")
+        self.usuarios.append(usuario)
+        self._guardar_usuarios()
+
+        self.usuario_actual = usuario
+        log.info("Cuenta creada (usuario id=%s).", nuevo_id)
+        return True, None
 
     def cerrar_sesion(self) -> None:
-        self.usuario_autenticado = False
-        self.usuario_nombre = None
-        self.usuario_email = None
+        self.usuario_actual = None
 
     def esta_autenticado(self) -> bool:
-        return self.usuario_autenticado
+        return self.usuario_actual is not None
