@@ -1,0 +1,114 @@
+#:kivy 2.3.1
+
+# AlertCom - Pantalla 5: Historial de reportes
+# Lógica de esta pantalla: views/pantallas/history_view.py
+
+<HistoryScreen>:
+    md_bg_color: app.theme_cls.surfaceColor
+
+    MDBoxLayout:
+        orientation: "vertical"
+
+        MDTopAppBar:
+            type: "small"
+
+            MDTopAppBarLeadingButtonContainer:
+                MDActionTopAppBarButton:
+                    icon: "arrow-left"
+                    on_release: app.navegacion.volver()
+
+            MDTopAppBarTitle:
+                id: titulo_historial
+                text: "Mis Reportes"
+                pos_hint: {"center_x": 0.5}
+
+        # ── Contadores (se llenan desde history_view.py) ──
+        MDBoxLayout:
+            orientation: "horizontal"
+            spacing: "12dp"
+            padding: ["16dp", "12dp", "16dp", "12dp"]
+            size_hint_y: None
+            height: "80dp"
+
+            TarjetaContador:
+                MDBoxLayout:
+                    orientation: "vertical"
+                    MDLabel:
+                        id: total_label
+                        text: "0"
+                        font_style: "Headline"
+                        role: "small"
+                        halign: "center"
+                        theme_text_color: "Custom"
+                        text_color: [1, 0.6, 0, 1]
+                    MDLabel:
+                        text: "Total"
+                        font_style: "Label"
+                        role: "medium"
+                        halign: "center"
+                        theme_text_color: "Secondary"
+
+            TarjetaContador:
+                MDBoxLayout:
+                    orientation: "vertical"
+                    MDLabel:
+                        id: revision_label
+                        text: "0"
+                        font_style: "Headline"
+                        role: "small"
+                        halign: "center"
+                        theme_text_color: "Custom"
+                        text_color: [0.96, 0.62, 0.04, 1]
+                    MDLabel:
+                        text: "En revisión"
+                        font_style: "Label"
+                        role: "medium"
+                        halign: "center"
+                        theme_text_color: "Secondary"
+
+            TarjetaContador:
+                MDBoxLayout:
+                    orientation: "vertical"
+                    MDLabel:
+                        id: reparados_label
+                        text: "0"
+                        font_style: "Headline"
+                        role: "small"
+                        halign: "center"
+                        theme_text_color: "Custom"
+                        text_color: [0.2, 0.66, 0.33, 1]
+                    MDLabel:
+                        text: "Reparados"
+                        font_style: "Label"
+                        role: "medium"
+                        halign: "center"
+                        theme_text_color: "Secondary"
+
+        MDDivider:
+
+        # ── Lista de reportes (se llena desde history_view.py) ──
+        ScrollView:
+            do_scroll_x: False
+
+            MDList:
+                id: lista_reportes
+                spacing: "4dp"
+                padding: ["0dp", "8dp", "0dp", "8dp"]
+
+        MDBoxLayout:
+            size_hint_y: None
+            height: "70dp"
+            padding: ["20dp", "8dp", "20dp", "8dp"]
+
+            MDButton:
+                style: "outlined"
+                theme_width: "Custom"
+                size_hint_x: 1
+                on_release: app.navegacion.volver()
+
+                MDButtonIcon:
+                    icon: "home"
+
+                MDButtonText:
+                    pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                    text: "Volver al Inicio"

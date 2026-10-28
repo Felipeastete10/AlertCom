@@ -1,0 +1,10 @@
+# Dependencias de AlertCom
+# Instalar con el entorno virtual activado:
+#     pip install -r requirements.txt
+
+Kivy==2.3.1
+# KivyMD 2.x aún no está en PyPI: se instala desde GitHub (commit fijo)
+kivymd @ git+https://github.com/kivymd/KivyMD.git@a00c10c385064afb3a46b3a10d1d2c0c6505dc48
+kivy_garden.mapview==1.0.6
+plyer==2.1.0
+certifi

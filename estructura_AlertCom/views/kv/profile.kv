@@ -1,0 +1,176 @@
+#:kivy 2.3.1
+
+# AlertCom - Pantalla 6: Perfil de usuario
+# Lógica de esta pantalla: views/pantallas/profile_view.py
+
+<ProfileScreen>:
+    md_bg_color: app.theme_cls.surfaceColor
+
+    MDBoxLayout:
+        orientation: "vertical"
+
+        MDTopAppBar:
+            type: "small"
+
+            MDTopAppBarLeadingButtonContainer:
+                MDActionTopAppBarButton:
+                    icon: "arrow-left"
+                    on_release: app.navegacion.volver()
+
+            MDTopAppBarTitle:
+                text: "Mi Perfil"
+                pos_hint: {"center_x": 0.5}
+
+        ScrollView:
+            do_scroll_x: False
+            bar_width: "4dp"
+
+            MDBoxLayout:
+                orientation: "vertical"
+                spacing: "18dp"
+                padding: ["24dp", "20dp", "24dp", "30dp"]
+                adaptive_height: True
+
+                MDIcon:
+                    icon: "account-circle"
+                    font_size: "96sp"
+                    pos_hint: {"center_x": 0.5}
+                    theme_text_color: "Custom"
+                    text_color: [1, 0.6, 0, 1]
+                    size_hint_y: None
+                    height: "100dp"
+
+                MDLabel:
+                    id: profile_name
+                    text: "Usuario"
+                    font_style: "Headline"
+                    role: "small"
+                    halign: "center"
+                    theme_text_color: "Primary"
+                    adaptive_height: True
+
+                MDLabel:
+                    id: profile_email
+                    text: ""
+                    font_style: "Title"
+                    role: "medium"
+                    halign: "center"
+                    theme_text_color: "Secondary"
+                    adaptive_height: True
+
+                MDLabel:
+                    id: profile_comuna
+                    text: ""
+                    font_style: "Body"
+                    role: "medium"
+                    halign: "center"
+                    theme_text_color: "Secondary"
+                    adaptive_height: True
+
+                MDDivider:
+
+                # Estadísticas cívicas (calculadas desde incidentes.json)
+                MDCard:
+                    size_hint_y: None
+                    height: "100dp"
+                    theme_bg_color: "Custom"
+                    md_bg_color: [0.15, 0.15, 0.2, 1]
+                    padding: "16dp"
+
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        spacing: "16dp"
+
+                        MDBoxLayout:
+                            orientation: "vertical"
+                            MDLabel:
+                                id: stat_enviados
+                                text: "0"
+                                font_style: "Headline"
+                                role: "medium"
+                                halign: "center"
+                                theme_text_color: "Custom"
+                                text_color: [1, 0.6, 0, 1]
+                            MDLabel:
+                                text: "Reportes enviados"
+                                font_style: "Label"
+                                role: "medium"
+                                halign: "center"
+                                theme_text_color: "Secondary"
+
+                        MDDivider:
+                            orientation: "vertical"
+
+                        MDBoxLayout:
+                            orientation: "vertical"
+                            MDLabel:
+                                id: stat_reparados
+                                text: "0"
+                                font_style: "Headline"
+                                role: "medium"
+                                halign: "center"
+                                theme_text_color: "Custom"
+                                text_color: [0.2, 0.66, 0.33, 1]
+                            MDLabel:
+                                text: "Baches reparados"
+                                font_style: "Label"
+                                role: "medium"
+                                halign: "center"
+                                theme_text_color: "Secondary"
+
+                MDCard:
+                    adaptive_height: True
+                    theme_bg_color: "Custom"
+                    md_bg_color: [0.13, 0.13, 0.16, 1]
+                    padding: "16dp"
+
+                    MDBoxLayout:
+                        orientation: "vertical"
+                        spacing: "8dp"
+                        adaptive_height: True
+
+                        MDLabel:
+                            text: "Detalles de la cuenta"
+                            font_style: "Title"
+                            role: "small"
+                            theme_text_color: "Primary"
+                            adaptive_height: True
+
+                        MDLabel:
+                            id: profile_rol
+                            text: ""
+                            font_style: "Body"
+                            role: "medium"
+                            theme_text_color: "Secondary"
+                            adaptive_height: True
+
+                        MDLabel:
+                            text: "Configuración: " + app.origen_config
+                            font_style: "Body"
+                            role: "small"
+                            theme_text_color: "Secondary"
+                            adaptive_height: True
+
+                Widget:
+                    size_hint_y: None
+                    height: "10dp"
+
+                MDButton:
+                    style: "filled"
+                    theme_width: "Custom"
+                    size_hint_x: 1
+                    theme_bg_color: "Custom"
+                    md_bg_color: [0.8, 0.25, 0.25, 1]
+                    on_release: root.cerrar_sesion()
+
+                    MDButtonIcon:
+                        icon: "logout"
+                        theme_icon_color: "Custom"
+                        icon_color: [1, 1, 1, 1]
+
+                    MDButtonText:
+                        pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                        text: "Cerrar Sesión"
+                        font_style: "Title"
+                        theme_text_color: "Custom"
+                        text_color: [1, 1, 1, 1]
