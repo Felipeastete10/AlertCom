@@ -1,0 +1,144 @@
+#:kivy 2.3.1
+
+# AlertCom - Pantalla 7: Métricas de uso (solo funcionario municipal)
+# Lógica de esta pantalla: views/pantallas/metricas_view.py
+# Cálculo de KPIs: controllers/analitica.py
+
+# Tarjeta de un KPI. Python le asigna los textos; aquí solo va el diseño.
+<TarjetaKPI@MDCard>:
+    titulo: ""
+    valor: ""
+    meta: ""
+    estado: ""
+    detalle: ""
+    color_estado: [0.6, 0.6, 0.6, 1]
+    orientation: "vertical"
+    adaptive_height: True
+    padding: "16dp"
+    spacing: "6dp"
+    theme_bg_color: "Custom"
+    md_bg_color: [0.15, 0.15, 0.2, 1]
+
+    MDLabel:
+        text: root.titulo
+        font_style: "Title"
+        role: "small"
+        theme_text_color: "Primary"
+        adaptive_height: True
+
+    MDBoxLayout:
+        orientation: "horizontal"
+        adaptive_height: True
+        spacing: "12dp"
+
+        MDLabel:
+            text: root.valor
+            font_style: "Headline"
+            role: "medium"
+            theme_text_color: "Custom"
+            text_color: [1, 0.6, 0, 1]
+            # Ancho según el número: "100 %" nunca se parte en dos líneas
+            adaptive_size: True
+            pos_hint: {"center_y": 0.5}
+
+        MDLabel:
+            text: root.meta
+            font_style: "Body"
+            role: "medium"
+            halign: "right"
+            theme_text_color: "Secondary"
+            adaptive_height: True
+            pos_hint: {"center_y": 0.5}
+
+    # El estado se dice con COLOR y con TEXTO (accesibilidad)
+    MDLabel:
+        text: root.estado
+        font_style: "Label"
+        role: "large"
+        bold: True
+        theme_text_color: "Custom"
+        text_color: root.color_estado
+        adaptive_height: True
+
+    MDLabel:
+        text: root.detalle
+        font_style: "Body"
+        role: "small"
+        theme_text_color: "Secondary"
+        adaptive_height: True
+
+
+<MetricasScreen>:
+    theme_bg_color: "Custom"
+    md_bg_color: app.color_fondo
+
+    MDBoxLayout:
+        orientation: "vertical"
+
+        MDTopAppBar:
+
+            theme_bg_color: "Custom"
+
+            md_bg_color: app.color_fondo
+            type: "small"
+
+            MDTopAppBarLeadingButtonContainer:
+                MDActionTopAppBarButton:
+                    icon: "arrow-left"
+                    on_release: app.navegacion.ir_a("profile", "right")
+
+            MDTopAppBarTitle:
+                text: "Métricas de uso"
+                pos_hint: {"center_x": 0.5}
+
+            MDTopAppBarTrailingButtonContainer:
+                MDActionTopAppBarButton:
+                    icon: "refresh"
+                    on_release: root.actualizar()
+
+        ScrollView:
+            do_scroll_x: False
+
+            MDBoxLayout:
+                orientation: "vertical"
+                adaptive_height: True
+                spacing: "14dp"
+                padding: ["16dp", "12dp", "16dp", "24dp"]
+
+                MDLabel:
+                    id: periodo_label
+                    text: ""
+                    font_style: "Body"
+                    role: "medium"
+                    theme_text_color: "Secondary"
+                    adaptive_height: True
+
+                MDLabel:
+                    text: "Indicadores clave (KPI)"
+                    font_style: "Title"
+                    role: "medium"
+                    theme_text_color: "Primary"
+                    adaptive_height: True
+
+                MDBoxLayout:
+                    id: lista_kpis
+                    orientation: "vertical"
+                    adaptive_height: True
+                    spacing: "12dp"
+
+                MDLabel:
+                    text: "Métricas"
+                    font_style: "Title"
+                    role: "medium"
+                    theme_text_color: "Primary"
+                    adaptive_height: True
+
+                MDList:
+                    id: lista_metricas
+
+                MDLabel:
+                    text: "Calculado en este teléfono desde eventos.jsonl. No se envía nada a internet."
+                    font_style: "Body"
+                    role: "small"
+                    theme_text_color: "Secondary"
+                    adaptive_height: True

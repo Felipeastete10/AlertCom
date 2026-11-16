@@ -29,6 +29,10 @@ from controllers import (  # noqa: E402
 from models import Incidente, Usuario  # noqa: E402
 
 
+
+# Lugar válido para los reportes de prueba (ubicación y calle son obligatorias)
+LUGAR = {"ubicacion": "-38.7359, -72.5904", "calle": "Avenida Alemania 450"}
+
 class NotificadorFalso:
     """Reemplaza a Plyer en las pruebas y recuerda lo que se notificó."""
 
@@ -135,11 +139,11 @@ class TestPersistencia(BaseTemporal):
 
     def test_reportes_sobreviven_al_reinicio(self):
         ruta = self.carpeta / "incidentes.json"
-        IncidenteController(AlmacenamientoJSON(ruta)).crear_incidente("Bache", "Leve", "uno")
+        IncidenteController(AlmacenamientoJSON(ruta)).crear_incidente("Bache", "Leve", "uno", **LUGAR)
         # "Reiniciar la app" = crear un controlador nuevo que lee el mismo archivo
         reabierto = IncidenteController(AlmacenamientoJSON(ruta))
         self.assertEqual(len(reabierto.obtener_historial()), 1)
-        self.assertEqual(reabierto.crear_incidente("Hoyo", "Grave").id_incidente, 2)
+        self.assertEqual(reabierto.crear_incidente("Hoyo", "Grave", **LUGAR).id_incidente, 2)
 
 
 # ---------------------------------------------------------------------------
@@ -181,7 +185,7 @@ class TestNotificaciones(BaseTemporal):
     def test_crear_y_avanzar_estado_notifican(self):
         falso = NotificadorFalso()
         ctrl = IncidenteController(AlmacenamientoJSON(self.carpeta / "i.json"), notificador=falso)
-        inc = ctrl.crear_incidente("Grieta", "Moderado")
+        inc = ctrl.crear_incidente("Grieta", "Moderado", **LUGAR)
         ctrl.avanzar_estado(inc.id_incidente)
         self.assertEqual(len(falso.enviadas), 2)
         self.assertIn("En revisión", falso.enviadas[1][1])

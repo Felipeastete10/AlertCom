@@ -7,12 +7,14 @@
 # =============================================================================
 
 from kivy.metrics import dp
+from kivy.uix.image import Image
 from kivy.uix.widget import Widget
 
 from kivymd.uix.button import MDButton, MDButtonText
 from kivymd.uix.dialog import (
     MDDialog,
     MDDialogButtonContainer,
+    MDDialogContentContainer,
     MDDialogHeadlineText,
     MDDialogIcon,
     MDDialogSupportingText,
@@ -25,6 +27,7 @@ def mostrar_dialogo(
     mensaje: str,
     icono: str = "alert-circle-outline",
     botones: list[tuple[str, callable]] | None = None,
+    imagen: str | None = None,
 ) -> MDDialog:
     """
     Muestra un MDDialog (KivyMD 2.0).
@@ -35,6 +38,7 @@ def mostrar_dialogo(
         icono: Ícono superior (nombre de Material Design Icons).
         botones: Lista de (texto, funcion). Si no se indica, se muestra
                  un único botón "Entendido" que cierra el diálogo.
+        imagen: Ruta de una foto para mostrar bajo el texto (opcional).
     """
     dialogo = None
 
@@ -48,12 +52,19 @@ def mostrar_dialogo(
 
     lista_botones = [crear_boton(t, a) for t, a in (botones or [("Entendido", None)])]
 
-    dialogo = MDDialog(
+    partes = [
         MDDialogIcon(icon=icono),
         MDDialogHeadlineText(text=titulo),
         MDDialogSupportingText(text=mensaje),
-        MDDialogButtonContainer(Widget(), *lista_botones, spacing="8dp"),
-    )
+    ]
+    if imagen:
+        partes.append(MDDialogContentContainer(
+            Image(source=imagen, fit_mode="contain", size_hint_y=None, height=dp(200)),
+            padding=(0, dp(8), 0, 0),
+        ))
+    partes.append(MDDialogButtonContainer(Widget(), *lista_botones, spacing="8dp"))
+
+    dialogo = MDDialog(*partes)
     dialogo.open()
     return dialogo
 

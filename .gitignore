@@ -26,3 +26,15 @@ cache/
 # Archivos del sistema
 .DS_Store
 Thumbs.db
+
+# Buildozer (APK): descargas del SDK y archivos compilados
+.buildozer/
+bin/
+
+# Analítica: los eventos crudos no se suben (son datos de uso de personas);
+# sí se suben el resumen y los gráficos de analitica/resultados/
+*.jsonl
+analitica/resultados/eventos.csv
+
+# Registros de errores del teléfono (adb logcat): datos del dispositivo, no se suben
+error_*.txt

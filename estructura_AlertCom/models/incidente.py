@@ -11,6 +11,23 @@ from datetime import datetime
 
 FORMATO_FECHA = "%Y-%m-%d %H:%M:%S"
 
+def leer_coordenadas(texto) -> tuple[float, float] | None:
+    """'-38.7359, -72.5904' → (-38.7359, -72.5904). None si el texto no sirve."""
+    try:
+        lat, lon = (float(parte) for parte in str(texto).split(","))
+    except (ValueError, TypeError):
+        return None
+    if -90 <= lat <= 90 and -180 <= lon <= 180:
+        return lat, lon
+    return None
+
+
+def dentro_de_zona(lat: float, lon: float, limites) -> bool:
+    """True si (lat, lon) está dentro de limites = (oeste, sur, este, norte)."""
+    oeste, sur, este, norte = limites
+    return sur <= lat <= norte and oeste <= lon <= este
+
+
 # Ciclo de vida de un reporte (mismo texto en modelo, mapa e historial)
 ESTADOS = ("Pendiente", "En revisión", "Reparado")
 
@@ -26,8 +43,9 @@ class Incidente:
         gravedad: Leve, Moderado, Grave o Crítico.
         imagen: Ruta de la foto asociada.
         ubicacion: Coordenadas "lat, lon".
+        calle: Calle y número (o una referencia) escrita por el vecino.
         estado: Pendiente, En revisión o Reparado.
-        usuario_id: Usuario que reportó.
+        usuario_id: uid de quien reportó (el mismo en todos los teléfonos).
         fecha_creacion: Fecha y hora de creación.
     """
 
@@ -44,6 +62,8 @@ class Incidente:
         estado: str = "Pendiente",
         usuario_id: int | None = None,
         fecha_creacion: datetime | None = None,
+        calle: str = "",
+        solicitud_eliminacion: dict | None = None,
     ) -> None:
         if estado not in self.ESTADOS_VALIDOS:
             raise ValueError(f"Estado inválido: '{estado}'")
@@ -53,9 +73,16 @@ class Incidente:
         self.gravedad = gravedad
         self.imagen = imagen
         self.ubicacion = ubicacion
+        self.calle = calle
         self.estado = estado
         self.usuario_id = usuario_id
         self.fecha_creacion = fecha_creacion or datetime.now()
+        # {"motivo": ..., "fecha": ...} mientras espera la respuesta del funcionario
+        self.solicitud_eliminacion = solicitud_eliminacion
+
+    @property
+    def eliminacion_pendiente(self) -> bool:
+        return bool(self.solicitud_eliminacion)
 
     # ------------------------------------------------------------------
     # Reglas de negocio
@@ -88,13 +115,29 @@ class Incidente:
     def actualizar_descripcion(self, nueva_descripcion: str) -> None:
         self.descripcion = nueva_descripcion
 
+    def antiguedad_legible(self, ahora: datetime | None = None) -> str:
+        """'hace 5 min', 'hace 2 h', 'ayer', 'hace 3 días' o la fecha."""
+        segundos = ((ahora or datetime.now()) - self.fecha_creacion).total_seconds()
+        if segundos < 60:
+            return "hace un momento"
+        if segundos < 3600:
+            return f"hace {int(segundos // 60)} min"
+        if segundos < 86400:
+            return f"hace {int(segundos // 3600)} h"
+        dias = int(segundos // 86400)
+        if dias == 1:
+            return "ayer"
+        if dias < 7:
+            return f"hace {dias} días"
+        return self.fecha_creacion.strftime("%d/%m/%Y")
+
+    def paso_estado(self) -> int:
+        """0 = Pendiente, 1 = En revisión, 2 = Reparado (para la barra de avance)."""
+        return ESTADOS.index(self.estado) if self.estado in ESTADOS else 0
+
     def coordenadas(self) -> tuple[float, float] | None:
         """Convierte 'lat, lon' en (lat, lon). Devuelve None si no se puede."""
-        try:
-            lat, lon = (float(parte) for parte in self.ubicacion.split(","))
-            return lat, lon
-        except (ValueError, AttributeError):
-            return None
+        return leer_coordenadas(self.ubicacion)
 
     def fecha_legible(self) -> str:
         return self.fecha_creacion.strftime("%d/%m/%Y %H:%M")
@@ -110,9 +153,11 @@ class Incidente:
             "gravedad": self.gravedad,
             "imagen": self.imagen,
             "ubicacion": self.ubicacion,
+            "calle": self.calle,
             "estado": self.estado,
             "usuario_id": self.usuario_id,
             "fecha_creacion": self.fecha_creacion.strftime(FORMATO_FECHA),
+            "solicitud_eliminacion": self.solicitud_eliminacion,
         }
 
     @classmethod
@@ -124,9 +169,11 @@ class Incidente:
             gravedad=datos.get("gravedad", ""),
             imagen=datos.get("imagen", ""),
             ubicacion=datos.get("ubicacion", ""),
+            calle=datos.get("calle", ""),  # los reportes antiguos no tienen calle
             estado=datos.get("estado", "Pendiente"),
             usuario_id=datos.get("usuario_id"),
             fecha_creacion=datetime.strptime(datos["fecha_creacion"], FORMATO_FECHA),
+            solicitud_eliminacion=datos.get("solicitud_eliminacion"),  # reportes antiguos: None
         )
 
     def __str__(self) -> str:

@@ -4,7 +4,8 @@
 # Lógica de esta pantalla: views/pantallas/login_view.py
 
 <LoginScreen>:
-    md_bg_color: app.theme_cls.surfaceColor
+    theme_bg_color: "Custom"
+    md_bg_color: app.color_fondo
 
     MDBoxLayout:
         orientation: "vertical"
@@ -15,7 +16,9 @@
             size_hint_y: 0.1
 
         MDIcon:
+            id: logo
             icon: "map-marker-alert"
+            theme_font_size: "Custom"
             font_size: "64sp"
             pos_hint: {"center_x": 0.5}
             theme_text_color: "Custom"
@@ -42,33 +45,57 @@
         Widget:
             size_hint_y: 0.05
 
-        MDTextField:
-            id: email_field
-            mode: "outlined"
-            size_hint_x: 0.95
-            pos_hint: {"center_x": 0.5}
-            write_tab: False
+        # Campos agrupados: se sacuden juntos si los datos no coinciden
+        MDBoxLayout:
+            id: caja_campos
+            orientation: "vertical"
+            adaptive_height: True
+            spacing: "16dp"
 
-            MDTextFieldLeadingIcon:
-                icon: "email-outline"
+            MDTextField:
+                id: email_field
+                mode: "outlined"
+                size_hint_x: 0.95
+                pos_hint: {"center_x": 0.5}
+                write_tab: False
 
-            MDTextFieldHintText:
-                text: "Correo electrónico"
+                MDTextFieldLeadingIcon:
+                    icon: "email-outline"
 
-        MDTextField:
-            id: password_field
-            mode: "outlined"
-            size_hint_x: 0.95
-            pos_hint: {"center_x": 0.5}
-            password: True
-            write_tab: False
-            on_text_validate: root.validate_login()
+                MDTextFieldHintText:
+                    text: "Correo electrónico"
 
-            MDTextFieldLeadingIcon:
-                icon: "lock-outline"
+            MDTextField:
+                id: password_field
+                mode: "outlined"
+                size_hint_x: 0.95
+                pos_hint: {"center_x": 0.5}
+                password: True
+                write_tab: False
+                on_text_validate: root.validate_login()
 
-            MDTextFieldHintText:
-                text: "Contraseña"
+                MDTextFieldLeadingIcon:
+                    icon: "lock-outline"
+
+                MDTextFieldHintText:
+                    text: "Contraseña"
+
+                # El ojo muestra u oculta la contraseña (lo maneja login_view.py)
+                MDTextFieldTrailingIcon:
+                    id: ojo
+                    icon: "eye-off-outline"
+
+            # Error en línea (en vez de una ventana que interrumpe)
+            MDLabel:
+                id: error_label
+                text: ""
+                font_style: "Body"
+                role: "medium"
+                halign: "center"
+                theme_text_color: "Custom"
+                text_color: [1, 0.45, 0.42, 1]
+                adaptive_height: True
+                opacity: 0
 
         Widget:
             size_hint_y: 0.04

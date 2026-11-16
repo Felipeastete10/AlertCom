@@ -4,12 +4,17 @@
 # Lógica de esta pantalla: views/pantallas/register_view.py
 
 <RegisterScreen>:
-    md_bg_color: app.theme_cls.surfaceColor
+    theme_bg_color: "Custom"
+    md_bg_color: app.color_fondo
 
     MDBoxLayout:
         orientation: "vertical"
 
         MDTopAppBar:
+
+            theme_bg_color: "Custom"
+
+            md_bg_color: app.color_fondo
             type: "small"
 
             MDTopAppBarLeadingButtonContainer:

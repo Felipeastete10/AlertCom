@@ -6,12 +6,12 @@
 # =============================================================================
 
 from kivymd.app import MDApp
-from kivymd.uix.screen import MDScreen
+from views.componentes.pantalla_base import PantallaBase
 
 from views.componentes.dialogos import mostrar_aviso, mostrar_dialogo
 
 
-class RegisterScreen(MDScreen):
+class RegisterScreen(PantallaBase):
     """Registro de un vecino nuevo."""
 
     CAMPOS = ("reg_nombre", "reg_email", "reg_contrasena", "reg_confirmacion")

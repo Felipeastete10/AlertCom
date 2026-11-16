@@ -2,7 +2,8 @@
 # AlertCom - Navegación entre pantallas
 # =============================================================================
 # Único lugar que cambia la pantalla visible. Protege las pantallas privadas:
-# si no hay sesión, redirige al login.
+# si no hay sesión, redirige al login; si la pantalla es solo municipal y el
+# usuario es vecino, redirige al inicio.
 #
 # Desde el KV:      app.navegacion.ir_a("profile")
 # Desde Python:     MDApp.get_running_app().navegacion.ir_a("history")
@@ -19,6 +20,7 @@ class Navegador:
     """Cambia de pantalla con transición y control de acceso."""
 
     PANTALLAS_PUBLICAS = {"safety", "login", "register"}
+    PANTALLAS_MUNICIPALES = {"metricas"}  # solo funcionario municipal
     PESTANAS = {
         "Inicio": ("home", "right"),
         "Mis Reportes": ("history", "left"),
@@ -30,9 +32,13 @@ class Navegador:
         self.auth = auth_controller
 
     def ir_a(self, pantalla: str, direccion: str = "left") -> None:
-        if pantalla not in self.PANTALLAS_PUBLICAS and not self.auth.esta_autenticado():
+        usuario = self.auth.usuario_actual
+        if pantalla not in self.PANTALLAS_PUBLICAS and usuario is None:
             log.info("Acceso a '%s' sin sesión: redirigido a login.", pantalla)
             pantalla, direccion = "login", "right"
+        elif pantalla in self.PANTALLAS_MUNICIPALES and not usuario.es_municipal:
+            log.info("Acceso a '%s' sin permiso: redirigido al inicio.", pantalla)
+            pantalla, direccion = "home", "right"
         self.gestor.transition = SlideTransition(direction=direccion)
         self.gestor.current = pantalla
 

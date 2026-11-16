@@ -1,28 +1,38 @@
 # =============================================================================
 # AlertCom - Vista: Pantalla Principal / Mapa (HomeScreen)
 # =============================================================================
-# Muestra el mapa de Temuco con un marcador de color por cada reporte y el
-# botón "+ Reportar bache". El banner superior viene de app.mensaje_banner
-# (configuración remota).
+# Muestra el mapa de Temuco con un marcador de color por cada reporte, el
+# botón "+ Reportar bache" y el botón "Mi ubicación" (punto azul).
+# El banner superior viene de app.mensaje_banner (configuración remota).
+# El MapView se crea en views/componentes/mapa.py (configuración correcta).
 # =============================================================================
 
+from kivy.clock import Clock
+from kivy.metrics import dp
 from kivymd.app import MDApp
-from kivymd.uix.screen import MDScreen
 
-from config import CARPETA_IMAGENES, CENTRO_TEMUCO, ZOOM_INICIAL
-from views.componentes.dialogos import mostrar_dialogo
-
-try:
-    from kivy_garden.mapview import MapMarker, MapSource, MapView
-    MAPVIEW_DISPONIBLE = True
-except ImportError:  # Sin kivy_garden.mapview se usa la simulación del KV
-    MAPVIEW_DISPONIBLE = False
+from config import (ANCLA_MARCADOR_Y, CARPETA_IMAGENES, CENTRO_TEMUCO, LIMITES_TEMUCO, ZOOM_INICIAL,
+                    ZOOM_UBICACION)
+from models.incidente import dentro_de_zona
+from views.componentes.detalle_reporte import mostrar_detalle_reporte
+from views.componentes.dialogos import mostrar_aviso, mostrar_dialogo
+from views.componentes.interaccion import Pastilla
+from views.componentes.mapa import MAPVIEW_DISPONIBLE, MapMarker, crear_mapa
+from views.componentes.pantalla_base import PantallaBase
 
 ICONO_POR_ESTADO = {
     "Pendiente": CARPETA_IMAGENES / "marcador_pendiente.png",
     "En revisión": CARPETA_IMAGENES / "marcador_en_revision.png",
     "Reparado": CARPETA_IMAGENES / "marcador_reparado.png",
 }
+ICONO_MI_UBICACION = CARPETA_IMAGENES / "mi_ubicacion.png"
+
+# Filtros del mapa: (estado, texto corto, color)
+FILTROS = [
+    ("Pendiente", "Pendientes", [0.9, 0.28, 0.28, 1]),
+    ("En revisión", "Revisión", [0.96, 0.62, 0.04, 1]),
+    ("Reparado", "Reparados", [0.2, 0.66, 0.33, 1]),
+]
 
 
 if MAPVIEW_DISPONIBLE:
@@ -36,6 +46,8 @@ if MAPVIEW_DISPONIBLE:
                 lat=lat,
                 lon=lon,
                 source=str(ICONO_POR_ESTADO.get(incidente.estado, ICONO_POR_ESTADO["Pendiente"])),
+                anchor_x=0.5,
+                anchor_y=ANCLA_MARCADOR_Y,  # la PUNTA del marcador en el lugar exacto
                 **kwargs,
             )
             self.incidente = incidente
@@ -45,7 +57,7 @@ if MAPVIEW_DISPONIBLE:
             self.al_tocar(self.incidente)
 
 
-class HomeScreen(MDScreen):
+class HomeScreen(PantallaBase):
     """Pantalla principal: mapa de Temuco y acceso al formulario de reporte."""
 
     def __init__(self, incidente_controller=None, auth_controller=None, **kwargs) -> None:
@@ -54,11 +66,44 @@ class HomeScreen(MDScreen):
         self.auth_controller = auth_controller
         self.map_view = None
         self.marcadores = []
+        self.marcador_usuario = None
+
+    def on_kv_post(self, base_widget) -> None:
+        # Ojo: Kivy llama a on_kv_post ANTES de que termine __init__, por eso
+        # los filtros se crean aquí y no en __init__.
+        super().on_kv_post(base_widget)
+        self.estados_visibles = {estado for estado, _, _ in FILTROS}
+        self.filtros = {}
+        self.ids.filtros_estado.spacing = dp(4)
+        for estado, texto, color in FILTROS:
+            filtro = Pastilla(texto=texto, valor=estado, icono="circle-outline", color=color,
+                              seleccionada=True, compacta=True,
+                              padding=[dp(7), dp(6), dp(9), dp(6)], spacing=dp(4))
+            filtro.bind(on_release=lambda f: self.alternar_filtro(f.valor))
+            self.ids.filtros_estado.add_widget(filtro)
+            self.filtros[estado] = filtro
 
     def on_pre_enter(self, *args) -> None:
         self._marcar_pestana_inicio()
         self._inicializar_mapa()
         self._cargar_marcadores()
+        # Trae los reportes nuevos de los demás (al llegar se llama refrescar)
+        MDApp.get_running_app().controlador.sincronizar()
+
+    def refrescar(self) -> None:
+        """Llegaron reportes de la nube: se redibujan los marcadores."""
+        self._cargar_marcadores()
+
+    def on_enter(self, *args) -> None:
+        super().on_enter(*args)  # registra pantalla_vista
+        # La primera vez, centrar cuando el mapa ya tiene su tamaño final
+        # (si se centra antes, el centro queda corrido).
+        if self.map_view is not None and not getattr(self, "_mapa_centrado", False):
+            self._mapa_centrado = True
+            Clock.schedule_once(lambda _dt: self.map_view.center_on(*CENTRO_TEMUCO), 0)
+
+    def on_leave(self, *args) -> None:
+        MDApp.get_running_app().controlador.ubicacion.detener()
 
     # ------------------------------------------------------------------
     # Barra inferior
@@ -74,26 +119,16 @@ class HomeScreen(MDScreen):
     # ------------------------------------------------------------------
     def _inicializar_mapa(self) -> None:
         """Crea el MapView UNA sola vez (no en cada visita)."""
-        if not MAPVIEW_DISPONIBLE or self.map_view is not None:
+        if self.map_view is not None:
+            return
+        self.map_view = crear_mapa(*CENTRO_TEMUCO, ZOOM_INICIAL)
+        if self.map_view is None:
             return
 
         contenedor = self.ids.map_container
-        # Las imágenes del mapa se guardan en datos/cache_mapa (no en una
-        # carpeta "cache" suelta). Se indica dos veces porque MapView copia
-        # la carpeta a su MapSource antes de leer el parámetro cache_dir.
-        carpeta_cache = str(MDApp.get_running_app().controlador.carpeta_datos / "cache_mapa")
-        self.map_view = MapView(
-            lat=CENTRO_TEMUCO[0],
-            lon=CENTRO_TEMUCO[1],
-            zoom=ZOOM_INICIAL,
-            cache_dir=carpeta_cache,
-            map_source=MapSource(cache_dir=carpeta_cache),
-        )
-
         # En Kivy, index=0 deja el widget ENCIMA de todo. Con el índice más
-        # alto queda DEBAJO del banner, la leyenda y el botón de reporte.
+        # alto queda DEBAJO del banner, la leyenda y los botones.
         contenedor.add_widget(self.map_view, index=len(contenedor.children))
-
         # Con mapa real ya no se necesita la simulación.
         contenedor.remove_widget(self.ids.simulacion_mapa)
 
@@ -105,20 +140,65 @@ class HomeScreen(MDScreen):
             self.map_view.remove_marker(marcador)
         self.marcadores.clear()
 
-        for incidente in self.incidente_controller.obtener_historial():
+        reportes = self.incidente_controller.obtener_historial()
+        for estado, texto, _ in FILTROS:
+            cantidad = sum(r.estado == estado for r in reportes)
+            self.filtros[estado].texto = f"{texto} {cantidad}"
+
+        for incidente in reportes:
+            if incidente.estado not in self.estados_visibles:
+                continue
             marcador = MarcadorIncidente(incidente, al_tocar=self._mostrar_detalle)
             self.map_view.add_marker(marcador)
             self.marcadores.append(marcador)
 
+    def alternar_filtro(self, estado: str) -> None:
+        """Muestra u oculta los marcadores de un estado."""
+        if estado in self.estados_visibles:
+            self.estados_visibles.discard(estado)
+        else:
+            self.estados_visibles.add(estado)
+        self.filtros[estado].seleccionada = estado in self.estados_visibles
+        self._cargar_marcadores()
+        if not self.estados_visibles:
+            mostrar_aviso("Todos los filtros apagados: toca uno para ver reportes")
+
     def _mostrar_detalle(self, incidente) -> None:
-        mostrar_dialogo(
-            f"#{incidente.id_incidente} · {incidente.tipo_incidente}",
-            f"Gravedad: {incidente.gravedad}\n"
-            f"Estado: {incidente.estado}\n"
-            f"Fecha: {incidente.fecha_legible()}\n"
-            f"{incidente.descripcion or 'Sin descripción.'}",
-            icono="map-marker-alert",
-        )
+        mostrar_detalle_reporte(incidente)
+
+    # ------------------------------------------------------------------
+    # Mi ubicación
+    # ------------------------------------------------------------------
+    def centrar_en_mi_ubicacion(self) -> None:
+        servicio = MDApp.get_running_app().controlador.ubicacion
+        if servicio.disponible:
+            mostrar_aviso("Buscando tu ubicación…")
+        servicio.pedir(self._al_obtener_ubicacion, self._al_fallar_ubicacion)
+
+    def _al_obtener_ubicacion(self, lat, lon, _precision, definitiva) -> None:
+        if self.map_view is None:
+            return
+        if not dentro_de_zona(lat, lon, LIMITES_TEMUCO):
+            MDApp.get_running_app().controlador.ubicacion.detener()
+            mostrar_dialogo("Estás fuera de Temuco",
+                            "El mapa de AlertCom muestra solo Temuco y Padre Las Casas.",
+                            icono="map-marker-off-outline")
+            return
+        if self.marcador_usuario is None:
+            self.marcador_usuario = MapMarker(lat=lat, lon=lon, source=str(ICONO_MI_UBICACION),
+                                              anchor_x=0.5, anchor_y=0.5)
+            self.map_view.add_marker(self.marcador_usuario)
+        else:
+            self.marcador_usuario.lat, self.marcador_usuario.lon = lat, lon
+            self.map_view.trigger_update(True)
+        self.map_view.zoom = ZOOM_UBICACION
+        self.map_view.center_on(lat, lon)
+        if definitiva:
+            self.registrar_evento("ubicacion_solicitada", {"pantalla": "home", "metodo": "gps", "resultado": "ok"})
+
+    def _al_fallar_ubicacion(self, motivo, mensaje) -> None:
+        self.registrar_evento("ubicacion_solicitada", {"pantalla": "home", "metodo": "gps", "resultado": motivo})
+        mostrar_dialogo("Ubicación no disponible", mensaje, icono="crosshairs-off")
 
     # ------------------------------------------------------------------
     # Acciones

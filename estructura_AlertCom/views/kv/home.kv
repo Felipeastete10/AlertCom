@@ -4,12 +4,17 @@
 # Lógica de esta pantalla: views/pantallas/home_view.py
 
 <HomeScreen>:
-    md_bg_color: app.theme_cls.surfaceColor
+    theme_bg_color: "Custom"
+    md_bg_color: app.color_fondo
 
     MDBoxLayout:
         orientation: "vertical"
 
         MDTopAppBar:
+
+            theme_bg_color: "Custom"
+
+            md_bg_color: app.color_fondo
             type: "small"
 
             MDTopAppBarTitle:
@@ -84,54 +89,42 @@
                     shorten: True
                     shorten_from: "right"
 
-            # Leyenda de colores
-            MDCard:
-                size_hint: None, None
-                size: "300dp", "30dp"
-                pos_hint: {"center_x": 0.5, "y": 0.2}
-                padding: ["10dp", "4dp"]
+            # Leyenda = filtros: tocar un estado muestra u oculta sus marcadores
+            MDBoxLayout:
+                id: filtros_estado
+                adaptive_size: True
                 spacing: "6dp"
-                theme_bg_color: "Custom"
-                md_bg_color: [0.12, 0.12, 0.15, 0.85]
+                padding: "6dp"
+                pos_hint: {"center_x": 0.5, "y": 0.19}
+                canvas.before:
+                    Color:
+                        rgba: 0.12, 0.12, 0.15, 0.88
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [self.height / 2]
 
-                MDIcon:
-                    icon: "circle"
-                    font_size: "12sp"
-                    theme_text_color: "Custom"
-                    text_color: [0.9, 0.28, 0.28, 1]
-                    pos_hint: {"center_y": 0.5}
-                MDLabel:
-                    text: "Pendiente"
-                    font_style: "Label"
-                    role: "small"
-                    theme_text_color: "Custom"
-                    text_color: [1, 1, 1, 0.85]
+            # Crédito obligatorio de la licencia de OpenStreetMap
+            MDLabel:
+                text: "© OpenStreetMap"
+                font_style: "Label"
+                role: "small"
+                # Tamaño fijo: el crédito del mapa no crece con la letra
+                theme_font_size: "Custom"
+                font_size: "10dp"
+                theme_text_color: "Custom"
+                text_color: [1, 1, 1, 0.7]
+                halign: "right"
+                size_hint: None, None
+                size: "140dp", "20dp"
+                pos_hint: {"right": 0.98, "y": 0.005}
 
-                MDIcon:
-                    icon: "circle"
-                    font_size: "12sp"
-                    theme_text_color: "Custom"
-                    text_color: [0.96, 0.62, 0.04, 1]
-                    pos_hint: {"center_y": 0.5}
-                MDLabel:
-                    text: "En revisión"
-                    font_style: "Label"
-                    role: "small"
-                    theme_text_color: "Custom"
-                    text_color: [1, 1, 1, 0.85]
-
-                MDIcon:
-                    icon: "circle"
-                    font_size: "12sp"
-                    theme_text_color: "Custom"
-                    text_color: [0.2, 0.66, 0.33, 1]
-                    pos_hint: {"center_y": 0.5}
-                MDLabel:
-                    text: "Reparado"
-                    font_style: "Label"
-                    role: "small"
-                    theme_text_color: "Custom"
-                    text_color: [1, 1, 1, 0.85]
+            # Centrar el mapa en la ubicación actual (GPS del teléfono)
+            MDIconButton:
+                icon: "crosshairs-gps"
+                style: "filled"
+                pos_hint: {"right": 0.96, "y": 0.29}
+                on_release: root.centrar_en_mi_ubicacion()
 
             # Botón principal (texto configurable remotamente)
             MDExtendedFabButton:
@@ -143,8 +136,11 @@
                 MDExtendedFabButtonIcon:
                     icon: "plus"
 
+                # Tamaño fijo: el botón no cambia de ancho con el tamaño de letra
                 MDExtendedFabButtonText:
                     text: app.texto_boton_reporte
+                    theme_font_size: "Custom"
+                    font_size: "16sp"
 
         MDNavigationBar:
             id: barra_navegacion

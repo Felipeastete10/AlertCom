@@ -1,0 +1,3 @@
+# Librerías para analizar los eventos en el COMPUTADOR (no van en el APK)
+#     pip install -r requirements-analisis.txt
+matplotlib>=3.8

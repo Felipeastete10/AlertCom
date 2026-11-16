@@ -21,7 +21,11 @@ class Usuario:
     Usuario registrado en AlertCom.
 
     Attributes:
-        id_usuario: Identificador único.
+        id_usuario: Número de la cuenta en ESTE teléfono (1, 2, 3...).
+        uid: Identificador único en TODOS los teléfonos (texto aleatorio).
+            Los reportes se comparten por internet: "el reporte #5 es de
+            Ana" se guarda con su uid, porque el número 2 de un teléfono
+            puede ser otra persona en otro teléfono.
         nombre: Nombre para mostrar.
         email: Correo (se guarda en minúsculas).
         rol: "vecino" (reporta) o "municipal" (actualiza estados).
@@ -39,6 +43,7 @@ class Usuario:
         hash_contrasena: str,
         rol: str = "vecino",
         comuna: str = "Temuco",
+        uid: str | None = None,
     ) -> None:
         if rol not in ROLES_VALIDOS:
             raise ValueError(f"Rol inválido: '{rol}'")
@@ -49,6 +54,7 @@ class Usuario:
         self.hash_contrasena = hash_contrasena
         self.rol = rol
         self.comuna = comuna
+        self.uid = uid or secrets.token_hex(8)
 
     # ------------------------------------------------------------------
     # Contraseñas
@@ -72,6 +78,7 @@ class Usuario:
         contrasena: str,
         rol: str = "vecino",
         comuna: str = "Temuco",
+        uid: str | None = None,
     ) -> "Usuario":
         """Crea un usuario nuevo generando su sal y su hash."""
         sal = secrets.token_hex(16)
@@ -83,6 +90,7 @@ class Usuario:
             hash_contrasena=cls.generar_hash(contrasena, sal),
             rol=rol,
             comuna=comuna,
+            uid=uid,
         )
 
     def verificar_contrasena(self, contrasena: str) -> bool:
@@ -120,6 +128,7 @@ class Usuario:
             "comuna": self.comuna,
             "sal": self.sal,
             "hash_contrasena": self.hash_contrasena,
+            "uid": self.uid,
         }
 
     @classmethod
@@ -132,6 +141,7 @@ class Usuario:
             hash_contrasena=datos["hash_contrasena"],
             rol=datos.get("rol", "vecino"),
             comuna=datos.get("comuna", "Temuco"),
+            uid=datos.get("uid"),  # cuentas antiguas: se crea uno nuevo al cargar
         )
 
     def __str__(self) -> str:

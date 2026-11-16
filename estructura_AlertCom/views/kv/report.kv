@@ -1,15 +1,26 @@
 #:kivy 2.3.1
+#:import CARPETA_IMAGENES config.CARPETA_IMAGENES
+#:import ANCLA_MARCADOR_Y config.ANCLA_MARCADOR_Y
 
 # AlertCom - Pantalla 4: Formulario de reporte
 # Lógica de esta pantalla: views/pantallas/report_view.py
+#
+# Arriba, un mapa con un pin FIJO en el centro: la persona mueve el mapa
+# (o usa el GPS) hasta que el pin quede sobre el daño. El mapa queda fuera
+# del ScrollView para que arrastrarlo no mueva el formulario.
 
 <ReportScreen>:
-    md_bg_color: app.theme_cls.surfaceColor
+    theme_bg_color: "Custom"
+    md_bg_color: app.color_fondo
 
     MDBoxLayout:
         orientation: "vertical"
 
         MDTopAppBar:
+
+            theme_bg_color: "Custom"
+
+            md_bg_color: app.color_fondo
             type: "small"
 
             MDTopAppBarLeadingButtonContainer:
@@ -21,17 +32,174 @@
                 text: "Nuevo Reporte"
                 pos_hint: {"center_x": 0.5}
 
+        # ── UBICACIÓN: mapa con pin fijo ──
+        MDFloatLayout:
+            id: contenedor_mapa
+            size_hint_y: None
+            height: "230dp"
+
+            # Se ve solo si kivy_garden.mapview no está instalado
+            MDLabel:
+                id: mapa_no_disponible
+                text: "Mapa no disponible: se usará el centro de Temuco"
+                halign: "center"
+                theme_text_color: "Secondary"
+
+            # Pin: el MISMO dibujo que los marcadores del mapa principal, con
+            # su punta exactamente en el centro del mapa (el punto que se
+            # guarda). Se posiciona con x/y, no con pos_hint, para que la
+            # punta (y no el borde de la imagen) quede en el centro.
+            Image:
+                id: pin_centro
+                source: str(CARPETA_IMAGENES / "marcador_pendiente.png")
+                size_hint: None, None
+                size: "40dp", "56dp"
+                center_x: contenedor_mapa.center_x
+                y: contenedor_mapa.center_y - self.height * ANCLA_MARCADOR_Y
+
+            MDCard:
+                size_hint: 0.94, None
+                height: self.minimum_height
+                pos_hint: {"center_x": 0.5, "top": 0.97}
+                padding: ["10dp", "6dp"]
+                theme_bg_color: "Custom"
+                md_bg_color: [0.12, 0.12, 0.15, 0.88]
+
+                MDLabel:
+                    text: "Mueve el mapa para dejar el pin sobre el daño"
+                    font_style: "Label"
+                    role: "large"
+                    halign: "center"
+                    adaptive_height: True
+                    theme_text_color: "Custom"
+                    text_color: [1, 1, 1, 1]
+
+            MDIconButton:
+                id: boton_gps
+                icon: "crosshairs-gps"
+                style: "filled"
+                pos_hint: {"right": 0.97, "y": 0.05}
+                on_release: root.usar_mi_ubicacion()
+
+            MDLabel:
+                text: "© OpenStreetMap"
+                font_style: "Label"
+                role: "small"
+                # Tamaño fijo: el crédito del mapa no crece con la letra
+                theme_font_size: "Custom"
+                font_size: "10dp"
+                theme_text_color: "Custom"
+                text_color: [0.1, 0.1, 0.1, 0.8]
+                size_hint: None, None
+                size: "120dp", "18dp"
+                pos_hint: {"x": 0.02, "y": 0.01}
+
+        # Estado de la ubicación (texto + ícono: no depende solo del color)
+        MDBoxLayout:
+            adaptive_height: True
+            padding: ["20dp", "8dp", "20dp", "4dp"]
+            spacing: "8dp"
+
+            MDIcon:
+                id: icono_ubicacion
+                icon: "map-marker-question-outline"
+                theme_text_color: "Custom"
+                text_color: [0.96, 0.62, 0.04, 1]
+                pos_hint: {"center_y": 0.5}
+
+            MDLabel:
+                id: estado_ubicacion
+                text: "Ubicación sin marcar"
+                font_style: "Body"
+                role: "medium"
+                adaptive_height: True
+                pos_hint: {"center_y": 0.5}
+
+        # Avance del formulario: qué falta para poder enviar
+        MDBoxLayout:
+            id: fila_progreso
+            orientation: "vertical"
+            adaptive_height: True
+            spacing: "6dp"
+            padding: ["20dp", "2dp", "20dp", "8dp"]
+
+            MDBoxLayout:
+                adaptive_height: True
+                spacing: "8dp"
+
+                MDLabel:
+                    id: texto_progreso
+                    text: "Falta: ubicación, calle, tipo y gravedad"
+                    font_style: "Label"
+                    role: "large"
+                    theme_text_color: "Secondary"
+                    adaptive_height: True
+                    pos_hint: {"center_y": 0.5}
+
+                MDLabel:
+                    id: cuenta_progreso
+                    text: "0/4"
+                    font_style: "Label"
+                    role: "large"
+                    bold: True
+                    adaptive_size: True
+                    theme_text_color: "Custom"
+                    text_color: [1, 0.6, 0, 1]
+                    pos_hint: {"center_y": 0.5}
+
+            BarraProgreso:
+                id: barra_progreso
+
         ScrollView:
             do_scroll_x: False
             bar_width: "4dp"
 
             MDBoxLayout:
                 orientation: "vertical"
-                spacing: "18dp"
-                padding: ["24dp", "20dp", "24dp", "30dp"]
+                spacing: "16dp"
+                padding: ["20dp", "12dp", "20dp", "30dp"]
                 adaptive_height: True
 
-                # ── CAMPO 1: Foto ──
+                # ── CAMPO 1: Calle ──
+                MDLabel:
+                    text: "Calle o referencia"
+                    font_style: "Title"
+                    role: "small"
+                    theme_text_color: "Primary"
+                    adaptive_height: True
+
+                MDBoxLayout:
+                    adaptive_height: True
+                    spacing: "8dp"
+
+                    MDTextField:
+                        id: calle_field
+                        mode: "outlined"
+                        on_text_validate: root.buscar_calle_en_mapa()
+
+                        MDTextFieldLeadingIcon:
+                            icon: "road-variant"
+
+                        MDTextFieldHintText:
+                            text: "Ej: Avenida Alemania 450"
+
+                        MDTextFieldHelperText:
+                            text: "Toca la lupa para ubicarla"
+                            mode: "persistent"
+
+                        MDTextFieldMaxLengthText:
+                            max_text_length: 120
+
+                    MDIconButton:
+                        id: boton_buscar_calle
+                        icon: "map-search-outline"
+                        style: "tonal"
+                        pos_hint: {"top": 1}
+                        on_release: root.buscar_calle_en_mapa()
+
+                MDDivider:
+
+                # ── CAMPO 2: Foto ──
                 MDLabel:
                     text: "Fotografía del daño"
                     font_style: "Title"
@@ -41,46 +209,83 @@
 
                 MDCard:
                     size_hint_y: None
-                    height: "140dp"
+                    height: "170dp"
                     theme_bg_color: "Custom"
                     md_bg_color: [0.15, 0.15, 0.18, 1]
-                    padding: "16dp"
-                    on_release: root.simular_foto()
+                    padding: "8dp"
+                    on_release: root.tomar_foto()
 
-                    MDBoxLayout:
-                        orientation: "vertical"
-                        spacing: "8dp"
-                        adaptive_height: True
-                        pos_hint: {"center_y": 0.5}
+                    MDRelativeLayout:
 
-                        MDIcon:
-                            icon: "camera-plus-outline"
-                            font_size: "48sp"
-                            pos_hint: {"center_x": 0.5}
-                            theme_text_color: "Custom"
-                            text_color: [1, 0.6, 0, 1]
+                        MDBoxLayout:
+                            id: foto_vacia
+                            orientation: "vertical"
+                            spacing: "8dp"
                             adaptive_height: True
+                            pos_hint: {"center_y": 0.5}
 
-                        MDLabel:
-                            id: photo_label
-                            text: "Toca para tomar o seleccionar una foto"
-                            font_style: "Body"
-                            role: "medium"
-                            halign: "center"
-                            theme_text_color: "Secondary"
-                            adaptive_height: True
+                            MDIcon:
+                                icon: "camera-plus-outline"
+                                theme_font_size: "Custom"
+                                font_size: "44sp"
+                                pos_hint: {"center_x": 0.5}
+                                theme_text_color: "Custom"
+                                text_color: [1, 0.6, 0, 1]
+                                adaptive_height: True
 
-                MDLabel:
-                    text: "La ubicación GPS se adjuntará automáticamente"
-                    font_style: "Label"
-                    role: "large"
-                    theme_text_color: "Custom"
-                    text_color: [0.5, 0.7, 0.5, 1]
+                            MDLabel:
+                                id: photo_label
+                                text: "Toca para tomar una foto del daño"
+                                font_style: "Body"
+                                role: "medium"
+                                halign: "center"
+                                theme_text_color: "Custom"
+                                text_color: [1, 1, 1, 0.75]
+                                adaptive_height: True
+
+                        Image:
+                            id: foto_preview
+                            fit_mode: "contain"
+                            opacity: 0
+
+                MDBoxLayout:
+                    id: botones_foto
                     adaptive_height: True
+                    spacing: "12dp"
+
+                    MDButton:
+                        id: boton_camara
+                        style: "tonal"
+                        theme_width: "Custom"
+                        size_hint_x: 1
+                        on_release: root.tomar_foto()
+
+                        MDButtonIcon:
+                            id: icono_boton_camara
+                            icon: "camera"
+
+                        MDButtonText:
+                            id: texto_boton_camara
+                            text: "Tomar foto"
+                            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+
+                    MDButton:
+                        id: boton_galeria
+                        style: "outlined"
+                        theme_width: "Custom"
+                        size_hint_x: 1
+                        on_release: root.elegir_de_galeria()
+
+                        MDButtonIcon:
+                            icon: "image-multiple-outline"
+
+                        MDButtonText:
+                            text: "Galería"
+                            pos_hint: {"center_x": 0.5, "center_y": 0.5}
 
                 MDDivider:
 
-                # ── CAMPO 2: Tipo de daño ──
+                # ── CAMPO 3: Tipo de daño (pastillas que se tocan) ──
                 MDLabel:
                     text: "Tipo de daño"
                     font_style: "Title"
@@ -88,22 +293,12 @@
                     theme_text_color: "Primary"
                     adaptive_height: True
 
-                MDButton:
-                    id: type_selector
-                    style: "outlined"
-                    theme_width: "Custom"
-                    size_hint_x: 1
-                    on_release: root.abrir_menu_tipo()
+                MDStackLayout:
+                    id: grupo_tipo
+                    adaptive_height: True
+                    spacing: "8dp"
 
-                    MDButtonIcon:
-                        icon: "road-variant"
-
-                    MDButtonText:
-                        pos_hint: {"center_x": 0.5, "center_y": 0.5}
-                        id: type_label
-                        text: "Seleccionar tipo"
-
-                # ── CAMPO 3: Gravedad ──
+                # ── CAMPO 4: Gravedad (cada nivel con su color) ──
                 MDLabel:
                     text: "Gravedad"
                     font_style: "Title"
@@ -111,24 +306,14 @@
                     theme_text_color: "Primary"
                     adaptive_height: True
 
-                MDButton:
-                    id: severity_selector
-                    style: "outlined"
-                    theme_width: "Custom"
-                    size_hint_x: 1
-                    on_release: root.abrir_menu_gravedad()
-
-                    MDButtonIcon:
-                        icon: "alert-circle-outline"
-
-                    MDButtonText:
-                        pos_hint: {"center_x": 0.5, "center_y": 0.5}
-                        id: severity_label
-                        text: "Seleccionar gravedad"
+                MDStackLayout:
+                    id: grupo_gravedad
+                    adaptive_height: True
+                    spacing: "8dp"
 
                 MDDivider:
 
-                # ── CAMPO 4: Descripción ──
+                # ── CAMPO 5: Descripción ──
                 MDLabel:
                     text: "Descripción (opcional)"
                     font_style: "Title"
@@ -145,7 +330,7 @@
                         text: "Describe brevemente el daño vial..."
 
                     MDTextFieldHelperText:
-                        text: "Ej: Bache grande en calle Alemania frente al N°450"
+                        text: "Ej: Bache profundo en la pista derecha, frente al paradero"
                         mode: "on_focus"
 
                     MDTextFieldMaxLengthText:
@@ -153,7 +338,7 @@
 
                 Widget:
                     size_hint_y: None
-                    height: "10dp"
+                    height: "6dp"
 
                 MDButton:
                     style: "filled"

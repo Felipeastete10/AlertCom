@@ -4,12 +4,17 @@
 # Lógica de esta pantalla: views/pantallas/profile_view.py
 
 <ProfileScreen>:
-    md_bg_color: app.theme_cls.surfaceColor
+    theme_bg_color: "Custom"
+    md_bg_color: app.color_fondo
 
     MDBoxLayout:
         orientation: "vertical"
 
         MDTopAppBar:
+
+            theme_bg_color: "Custom"
+
+            md_bg_color: app.color_fondo
             type: "small"
 
             MDTopAppBarLeadingButtonContainer:
@@ -150,6 +155,94 @@
                             role: "small"
                             theme_text_color: "Secondary"
                             adaptive_height: True
+
+                        # Reportes compartidos: al día / por subir / sin conexión
+                        MDLabel:
+                            id: estado_nube
+                            text: ""
+                            font_style: "Body"
+                            role: "small"
+                            theme_text_color: "Secondary"
+                            adaptive_height: True
+
+                        MDLabel:
+                            id: version_label
+                            text: ""
+                            font_style: "Body"
+                            role: "small"
+                            theme_text_color: "Secondary"
+                            adaptive_height: True
+
+                # Privacidad: el vecino decide si se registran sus datos de uso
+                MDCard:
+                    adaptive_height: True
+                    theme_bg_color: "Custom"
+                    md_bg_color: [0.13, 0.13, 0.16, 1]
+                    padding: "16dp"
+
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        spacing: "12dp"
+                        adaptive_height: True
+
+                        MDBoxLayout:
+                            orientation: "vertical"
+                            spacing: "4dp"
+                            adaptive_height: True
+
+                            MDLabel:
+                                text: "Registrar mis datos de uso"
+                                font_style: "Title"
+                                role: "small"
+                                theme_text_color: "Primary"
+                                adaptive_height: True
+
+                            MDLabel:
+                                text: "Anónimo y solo en este teléfono: sirve para medir y mejorar la app."
+                                font_style: "Body"
+                                role: "small"
+                                theme_text_color: "Secondary"
+                                adaptive_height: True
+
+                        MDSwitch:
+                            id: switch_analitica
+                            pos_hint: {"center_y": 0.5}
+                            on_active: root.cambiar_analitica(self.active)
+
+                # Solo visible para funcionarios municipales (ver profile_view.py)
+                MDBoxLayout:
+                    id: caja_metricas
+                    size_hint_y: None
+                    height: 0
+                    opacity: 0
+
+                    MDButton:
+                        id: boton_metricas
+                        style: "outlined"
+                        theme_width: "Custom"
+                        size_hint_x: 1
+                        disabled: True
+                        on_release: app.navegacion.ir_a("metricas", "left")
+
+                        MDButtonIcon:
+                            icon: "chart-bar"
+
+                        MDButtonText:
+                            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                            text: "Ver métricas de uso"
+
+                MDButton:
+                    style: "tonal"
+                    theme_width: "Custom"
+                    size_hint_x: 1
+                    on_release: app.navegacion.ir_a("ajustes", "left")
+
+                    MDButtonIcon:
+                        icon: "cog-outline"
+
+                    MDButtonText:
+                        pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                        text: "Ajustes y cuenta"
 
                 Widget:
                     size_hint_y: None

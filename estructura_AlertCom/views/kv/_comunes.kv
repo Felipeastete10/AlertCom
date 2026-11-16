@@ -3,7 +3,100 @@
 # AlertCom - Plantillas compartidas (se carga primero por el guion bajo).
 # <Nombre@Base> crea una clase nueva directamente en KV.
 
+# --- Textos con tope -----------------------------------------------------------
+# Estos textos están en espacios de tamaño fijo (barra superior, barra de
+# navegación, botones, campos). Crecen con el tamaño de letra de Ajustes
+# (app.factor_letra), pero hasta un máximo: así nunca se salen ni se montan.
+<MDTopAppBarTitle>:
+    theme_font_size: "Custom"
+    font_size: min(sp(22) * app.factor_letra, dp(24))
+    shorten: True
+    shorten_from: "right"
+
+<MDNavigationItemLabel>:
+    theme_font_size: "Custom"
+    font_size: min(sp(12) * app.factor_letra, dp(13))
+
+<MDButtonText>:
+    theme_font_size: "Custom"
+    font_size: min(sp(14) * app.factor_letra, dp(17))
+
+# Campos de texto: sin sugerencias del teclado de Android. Con sugerencias, el
+# teclado "guarda" la palabra que se está escribiendo y la tecla borrar no
+# respondía a la primera (había que presionarla varias veces).
+<MDTextField>:
+    keyboard_suggestions: False
+
+<MDTextFieldHelperText>:
+    theme_font_size: "Custom"
+    font_size: min(sp(12) * app.factor_letra, dp(13))
+
+<MDTextFieldMaxLengthText>:
+    theme_font_size: "Custom"
+    font_size: min(sp(12) * app.factor_letra, dp(13))
+
 <TarjetaContador@MDCard>:
     theme_bg_color: "Custom"
     md_bg_color: [0.15, 0.15, 0.2, 1]
     padding: "8dp"
+
+
+# --- Piezas interactivas (lógica en views/componentes/interaccion.py) ---
+#:import _interaccion views.componentes.interaccion
+
+# Opción que se toca: tipo de daño, gravedad, filtros.
+<Pastilla>:
+    adaptive_size: True
+    spacing: "6dp"
+    padding: ["12dp", "9dp", "14dp", "9dp"]
+    canvas.before:
+        Color:
+            rgba: (self.color[0], self.color[1], self.color[2], 0.22 + 0.3 * self.brillo) if self.seleccionada else (1, 1, 1, 0.06 + 0.14 * self.brillo)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [self.height / 2]
+        Color:
+            rgba: self.color if self.seleccionada else (1, 1, 1, 0.20)
+        Line:
+            rounded_rectangle: (self.x, self.y, self.width, self.height, self.height / 2)
+            width: dp(1.4) if self.seleccionada else dp(1)
+
+    MDIcon:
+        icon: "check-circle" if root.seleccionada else (root.icono or "circle-outline")
+        theme_font_size: "Custom"
+        font_size: dp(14) if root.compacta else "18sp"
+        theme_text_color: "Custom"
+        text_color: root.color if root.seleccionada else (1, 1, 1, 0.65)
+        size_hint: None, None
+        size: self.texture_size
+        pos_hint: {"center_y": 0.5}
+
+    MDLabel:
+        id: etiqueta
+        text: root.texto
+        font_style: "Label"
+        role: "small" if root.compacta else "large"
+        bold: root.seleccionada
+        adaptive_size: True
+        theme_text_color: "Custom"
+        text_color: (1, 1, 1, 1) if root.seleccionada else (1, 1, 1, 0.8)
+        pos_hint: {"center_y": 0.5}
+
+# Barra de avance que se llena suave.
+<BarraProgreso>:
+    size_hint_y: None
+    height: "6dp"
+    canvas:
+        Color:
+            rgba: 1, 1, 1, 0.10
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [self.height / 2]
+        Color:
+            rgba: self.color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.width * self.valor, self.height
+            radius: [self.height / 2]

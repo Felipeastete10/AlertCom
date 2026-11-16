@@ -14,6 +14,7 @@ El objetivo de este registro es **transparentar el uso de la IA**, demostrando c
 4. [Prompt de Iteración y Funcionalidad: Agregando el Perfil](#4-prompt-de-iteración-y-funcionalidad-agregando-el-perfil)
 5. [Prompt de Documentación Académica: Guion de Presentación](#5-prompt-de-documentación-académica-guion-de-presentación)
 6. [Buenas Prácticas Aplicadas en estos Prompts](#-buenas-prácticas-aplicadas-en-estos-prompts)
+7. [Iteraciones E3 y E4 con asistente de IA](#7-iteraciones-e3-y-e4-con-asistente-de-ia)
 
 ---
 
@@ -396,3 +397,39 @@ Entre ellos:
 
 * **57,6 %** encuentra baches frecuentemente.
 * **Casi 70 %**
+
+---
+
+# 7. Iteraciones E3 y E4 con asistente de IA
+
+### 🎯 Propósito
+
+Declarar con transparencia cómo se usó un asistente de IA (**Claude, de Anthropic**) entre octubre y noviembre de 2026 para mejorar AlertCom, y qué parte del trabajo es del equipo.
+
+### 🧑‍💻 Solicitudes realizadas
+
+| # | Solicitud del equipo | Resultado |
+|---|---|---|
+| 1 | Analizar la app como arquitecto de software y experto UX: fortalezas, debilidades y recomendaciones | Informe con errores críticos detectados (métodos del `.kv` que no existían, historial que se borraba) |
+| 2 | Integrar las recomendaciones y lo pedido en las sesiones 17 a 23 (capas, JSON, Plyer, Remote Config, depuración) | Código corregido y 20 pruebas automáticas |
+| 3 | Reorganizar el proyecto en 3 capas con `main.py` de menos de 30 líneas | Estructura actual (`ESTRUCTURA.md`) |
+| 4 | Informes técnicos, presentación y guías de uso | Documentos de apoyo para el equipo |
+| 5 | Agregar lo pedido en las sesiones 25 a 29 (eventos, métricas, KPIs, MJV App) y preparar el APK con Buildozer | Registro de eventos, pantalla de Métricas, script de análisis, `buildozer.spec` y `DOCUMENTATION.md` |
+| 6 | Que el mapa funcione sin fallos, tomar una foto real del hoyo, agregar la calle y usar la ubicación actual | Corrección del mapa (imágenes que no cargaban), formulario con mapa y pin, GPS, cámara/galería, calle automática y 21 pruebas nuevas |
+| 7 | Pantalla de seguridad animada, app más interactiva, tamaño de letra, fondo, gestor de cuenta y tarjetas de reporte | Pantalla «camino nocturno», filtros, animaciones, pantalla de Ajustes, cambio de nombre/correo/contraseña, eliminar cuenta y 14 pruebas nuevas |
+| 8 | Que el vecino pueda eliminar un reporte con autorización del administrador | Flujo solicitud → aprobación/rechazo con permisos en el controlador, aviso para el funcionario y 9 pruebas nuevas |
+
+### ⚖️ Lo que NO hizo la IA
+
+* **No generó datos de medición.** Los KPIs del informe salen de los eventos registrados por personas reales durante el periodo declarado en `DOCUMENTATION.md`.
+* **No reemplazó el diagnóstico.** Las 26 encuestas y sus resultados son trabajo de campo del equipo.
+* **No decidió las metas por nosotros:** las metas de los KPIs (80 %, 60 s, 50 %) fueron propuestas y el equipo las revisó: [confirmar o ajustar].
+
+### ✅ Revisión del equipo
+
+> Completar con lo que el equipo verificó por su cuenta:
+
+* Ejecutamos las pruebas automáticas (`python -m unittest discover -s pruebas -v`) con resultado: [___].
+* Probamos la app en el teléfono [modelo] con el APK 1.4.0: [___].
+* Cada integrante revisó y puede explicar: [nombre → parte del código].
+

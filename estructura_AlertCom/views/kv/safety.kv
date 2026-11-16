@@ -1,76 +1,315 @@
 #:kivy 2.3.1
+#:import AMBAR views.componentes.seguridad.AMBAR
 
-# AlertCom - Pantalla 1: Aviso de seguridad
+# AlertCom - Pantalla 1: Aviso de seguridad ("camino nocturno")
 # Lógica de esta pantalla: views/pantallas/safety_view.py
+# Piezas animadas: views/componentes/seguridad.py
+#
+# Idea: abajo hay un camino cuyas líneas avanzan (vas manejando). Para
+# entrar hay que DESLIZAR "estoy detenido": el camino frena, la perilla se
+# pone verde y recién ahí se continúa. El mensaje se vive, no solo se lee.
+
+
+# --- Un paso del recorrido seguro: ícono, número y texto ---
+# Alto automático: crece si el teléfono usa letra grande (no se corta).
+<PasoSeguridad@MDBoxLayout>:
+    numero: "1"
+    icono: "car-brake-parking"
+    texto: ""
+    orientation: "vertical"
+    spacing: "4dp"
+    padding: ["4dp", "10dp", "4dp", "10dp"]
+    adaptive_height: True
+    canvas.before:
+        Color:
+            rgba: 0.11, 0.11, 0.13, 1
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(16)]
+        Color:
+            rgba: 1, 1, 1, 0.10
+        Line:
+            rounded_rectangle: (self.x, self.y, self.width, self.height, dp(16))
+            width: dp(1)
+
+    MDIcon:
+        icon: root.icono
+        theme_text_color: "Custom"
+        text_color: AMBAR
+        pos_hint: {"center_x": 0.5}
+        size_hint: None, None
+        size: self.texture_size
+
+    MDLabel:
+        text: "PASO " + root.numero
+        font_style: "Label"
+        role: "small"
+        theme_font_size: "Custom"
+        font_size: min(sp(11), dp(13))
+        bold: True
+        halign: "center"
+        adaptive_height: True
+        theme_text_color: "Custom"
+        text_color: AMBAR
+
+    MDLabel:
+        text: root.texto
+        font_style: "Label"
+        role: "large"
+        theme_font_size: "Custom"
+        font_size: min(sp(14), dp(17))
+        bold: True
+        halign: "center"
+        adaptive_height: True
+        theme_text_color: "Custom"
+        text_color: 1, 1, 1, 0.92
+
+
+# --- Deslizador "estoy detenido" ---
+<DeslizadorConfirmar>:
+    canvas.before:
+        # Pista
+        Color:
+            rgba: 0.10, 0.10, 0.12, 0.94
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [self.height / 2]
+        # Relleno que sigue a la perilla
+        Color:
+            rgba: self.color_perilla[0], self.color_perilla[1], self.color_perilla[2], 0.28
+        RoundedRectangle:
+            pos: self.pos
+            size: self.height + self.progreso * (self.width - self.height), self.height
+            radius: [self.height / 2]
+        Color:
+            rgba: self.color_perilla[0], self.color_perilla[1], self.color_perilla[2], 0.55
+        Line:
+            rounded_rectangle: (self.x, self.y, self.width, self.height, self.height / 2)
+            width: dp(1.2)
+
+    MDLabel:
+        text: "¡Listo! Buen viaje" if root.completado else root.texto + "  ›››"
+        # Con tope: con letra muy grande del teléfono la frase seguía cortándose
+        theme_font_size: "Custom"
+        font_size: min(sp(15), dp(17))
+        shorten: True
+        shorten_from: "right"
+        bold: True
+        halign: "center"
+        theme_text_color: "Custom"
+        text_color: 1, 1, 1, 1
+        opacity: 1 if root.completado else max(0, 1 - root.progreso * 1.6)
+        # Deja libre el lado donde está la perilla
+        padding: [dp(12), 0, root.height * 0.9, 0] if root.completado else [root.height * 0.9, 0, dp(12), 0]
+        pos: root.pos
+        size: root.size
+
+    # Perilla
+    Widget:
+        id: perilla
+        size_hint: None, None
+        size: root.height - dp(10), root.height - dp(10)
+        pos: root.x + dp(5) + root.progreso * (root.width - root.height), root.y + dp(5)
+        canvas:
+            Color:
+                rgba: root.color_perilla
+            Ellipse:
+                pos: self.pos
+                size: self.size
+
+    MDIcon:
+        icon: "check-bold" if root.completado else "car-brake-parking"
+        theme_font_size: "Custom"
+        font_size: "26dp"
+        halign: "center"
+        valign: "middle"
+        theme_text_color: "Custom"
+        text_color: 0.07, 0.07, 0.09, 1
+        size_hint: None, None
+        size: perilla.size
+        text_size: self.size
+        pos: perilla.pos
+
 
 <SafetyScreen>:
-    md_bg_color: app.theme_cls.surfaceColor
+    md_bg_color: 0.06, 0.06, 0.08, 1
 
-    MDBoxLayout:
-        orientation: "vertical"
-        spacing: "20dp"
-        padding: ["30dp", "40dp", "30dp", "40dp"]
+    MDFloatLayout:
 
-        Widget:
-            size_hint_y: 0.15
+        # Camino animado (ocupa la parte de abajo, detrás de todo)
+        CarreteraAnimada:
+            id: carretera
+            size_hint: 1, 0.40
+            pos_hint: {"x": 0, "y": 0}
 
-        MDIcon:
-            icon: "shield-car"
-            font_size: "80sp"
-            pos_hint: {"center_x": 0.5}
-            theme_text_color: "Custom"
-            text_color: [1, 0.6, 0, 1]
-            size_hint_y: None
-            height: "100dp"
+        MDBoxLayout:
+            orientation: "vertical"
+            pos_hint: {"x": 0, "y": 0}
 
-        MDLabel:
-            text: "Tu seguridad es lo primero"
-            font_style: "Headline"
-            role: "medium"
-            halign: "center"
-            theme_text_color: "Primary"
-            adaptive_height: True
+            # Todo el aviso. Si no cabe (pantalla chica o letra grande) se
+            # puede deslizar hacia arriba en vez de salirse de la pantalla.
+            ScrollView:
+                id: desplazable
+                do_scroll_x: False
+                bar_width: "3dp"
+                bar_color: 1, 0.6, 0, 0.6
+                bar_inactive_color: 1, 0.6, 0, 0.25
 
-        MDLabel:
-            text: "No utilices AlertCom\nmientras conduces"
-            font_style: "Title"
-            role: "large"
-            halign: "center"
-            theme_text_color: "Secondary"
-            adaptive_height: True
+                MDBoxLayout:
+                    orientation: "vertical"
+                    spacing: "10dp"
+                    padding: ["20dp", "8dp", "20dp", "8dp"]
+                    size_hint_y: None
+                    # Llena la pantalla cuando cabe (queda centrado) y crece si no
+                    height: max(self.minimum_height, desplazable.height)
 
-        MDIcon:
-            icon: "car-brake-alert"
-            font_size: "48sp"
-            pos_hint: {"center_x": 0.5}
-            theme_text_color: "Custom"
-            text_color: [0.8, 0.3, 0.3, 1]
-            size_hint_y: None
-            height: "60dp"
+                    Widget:
 
-        # Texto configurable remotamente (Sesión 22)
-        MDLabel:
-            text: app.mensaje_seguridad
-            font_style: "Body"
-            role: "large"
-            halign: "center"
-            theme_text_color: "Secondary"
-            adaptive_height: True
+                    # Señal de tránsito con baliza
+                    MDFloatLayout:
+                        size_hint_y: None
+                        height: "104dp"
 
-        Widget:
-            size_hint_y: 0.1
+                        HaloPulsante:
+                            id: halo
+                            size_hint: None, None
+                            size: "104dp", "104dp"
+                            pos_hint: {"center_x": 0.5, "center_y": 0.5}
 
-        MDButton:
-            style: "filled"
-            theme_width: "Custom"
-            size_hint_x: 0.85
-            pos_hint: {"center_x": 0.5}
-            on_release: root.ir_a_login()
+                        Widget:
+                            id: senal
+                            size_hint: None, None
+                            size: "58dp", "58dp"
+                            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                            canvas:
+                                PushMatrix:
+                                Rotate:
+                                    angle: 45
+                                    origin: self.center
+                                Color:
+                                    rgba: AMBAR
+                                RoundedRectangle:
+                                    pos: self.pos
+                                    size: self.size
+                                    radius: [dp(10)]
+                                Color:
+                                    rgba: 0.07, 0.07, 0.09, 1
+                                Line:
+                                    rounded_rectangle: (self.x + dp(5), self.y + dp(5), self.width - dp(10), self.height - dp(10), dp(7))
+                                    width: dp(2)
+                                PopMatrix:
 
-            MDButtonText:
-                pos_hint: {"center_x": 0.5, "center_y": 0.5}
-                text: "Entendido"
-                font_style: "Title"
+                        # En dp (no sp): el dibujo de la señal no cambia con la letra
+                        MDIcon:
+                            icon: "car-brake-alert"
+                            theme_font_size: "Custom"
+                            font_size: "30dp"
+                            theme_text_color: "Custom"
+                            text_color: 0.07, 0.07, 0.09, 1
+                            size_hint: None, None
+                            size: self.texture_size
+                            center: senal.center
 
-        Widget:
-            size_hint_y: 0.05
+                    MDLabel:
+                        text: "AVISO DE SEGURIDAD VIAL"
+                        font_style: "Label"
+                        role: "large"
+                        theme_font_size: "Custom"
+                        font_size: min(sp(14), dp(17))
+                        bold: True
+                        halign: "center"
+                        theme_text_color: "Custom"
+                        text_color: AMBAR
+                        adaptive_height: True
+
+                    MDLabel:
+                        text: "Primero, tu seguridad"
+                        font_style: "Headline"
+                        role: "small"
+                        theme_font_size: "Custom"
+                        font_size: min(sp(24), dp(28))
+                        bold: True
+                        halign: "center"
+                        theme_text_color: "Custom"
+                        text_color: 1, 1, 1, 1
+                        adaptive_height: True
+
+                    # Texto configurable remotamente (Sesión 22)
+                    MDLabel:
+                        text: app.mensaje_seguridad
+                        font_style: "Body"
+                        role: "large"
+                        halign: "center"
+                        theme_text_color: "Custom"
+                        text_color: 1, 1, 1, 0.72
+                        adaptive_height: True
+
+                    # Etiqueta: no usar mientras conduces. Ocupa el ancho y el
+                    # texto baja a otra línea si no cabe (antes se salía).
+                    MDBoxLayout:
+                        adaptive_height: True
+                        spacing: "10dp"
+                        padding: ["14dp", "10dp", "14dp", "10dp"]
+                        canvas.before:
+                            Color:
+                                rgba: 0.85, 0.25, 0.22, 0.18
+                            RoundedRectangle:
+                                pos: self.pos
+                                size: self.size
+                                radius: [dp(18)]
+
+                        MDIcon:
+                            icon: "cellphone-off"
+                            theme_text_color: "Custom"
+                            text_color: 1, 0.55, 0.5, 1
+                            size_hint: None, None
+                            size: self.texture_size
+                            pos_hint: {"center_y": 0.5}
+
+                        MDLabel:
+                            text: "No uses AlertCom mientras conduces"
+                            font_style: "Label"
+                            role: "large"
+                            theme_font_size: "Custom"
+                            font_size: min(sp(14), dp(17))
+                            bold: True
+                            adaptive_height: True
+                            theme_text_color: "Custom"
+                            text_color: 1, 0.75, 0.72, 1
+                            pos_hint: {"center_y": 0.5}
+
+                    # Recorrido seguro en 3 pasos (alto según el texto)
+                    MDBoxLayout:
+                        spacing: "10dp"
+                        adaptive_height: True
+
+                        PasoSeguridad:
+                            numero: "1"
+                            icono: "car-brake-parking"
+                            texto: "Detente"
+
+                        PasoSeguridad:
+                            numero: "2"
+                            icono: "camera-outline"
+                            texto: "Reporta"
+
+                        PasoSeguridad:
+                            numero: "3"
+                            icono: "map-marker-check-outline"
+                            texto: "Avanza"
+
+                    Widget:
+
+            # Deslizador fijo abajo: siempre visible, nunca tapa el contenido
+            MDAnchorLayout:
+                size_hint_y: None
+                height: "92dp"
+                padding: ["20dp", "8dp", "20dp", "20dp"]
+
+                DeslizadorConfirmar:
+                    id: deslizador
+                    size_hint: 1, None
+                    height: "64dp"
+                    on_confirmar: root.confirmar()
