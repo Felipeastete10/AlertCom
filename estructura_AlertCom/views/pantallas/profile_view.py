@@ -68,6 +68,13 @@ class ProfileScreen(PantallaBase):
         self.ids.caja_metricas.height = dp(56) if municipal else 0
         self.ids.caja_metricas.opacity = 1 if municipal else 0
         self.ids.boton_metricas.disabled = not municipal
+        self.ids.caja_confirmar.height = dp(56) if municipal else 0
+        self.ids.caja_confirmar.opacity = 1 if municipal else 0
+        self.ids.boton_confirmar.disabled = not municipal
+        if municipal:
+            cantidad = len(self.incidente_controller.por_confirmar())
+            self.ids.texto_boton_confirmar.text = (f"Confirmar reportes ({cantidad})" if cantidad
+                                                   else "Confirmar reportes")
 
     def cambiar_analitica(self, activo: bool) -> None:
         """El usuario activa o desactiva el registro de sus datos de uso."""

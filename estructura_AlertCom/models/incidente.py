@@ -64,6 +64,7 @@ class Incidente:
         fecha_creacion: datetime | None = None,
         calle: str = "",
         solicitud_eliminacion: dict | None = None,
+        confirmado: bool = True,
     ) -> None:
         if estado not in self.ESTADOS_VALIDOS:
             raise ValueError(f"Estado inválido: '{estado}'")
@@ -79,6 +80,9 @@ class Incidente:
         self.fecha_creacion = fecha_creacion or datetime.now()
         # {"motivo": ..., "fecha": ...} mientras espera la respuesta del funcionario
         self.solicitud_eliminacion = solicitud_eliminacion
+        # False mientras el municipio no lo revisa: solo lo ven su autor y el
+        # funcionario. Al confirmarlo, aparece en el mapa de todos.
+        self.confirmado = confirmado
 
     @property
     def eliminacion_pendiente(self) -> bool:
@@ -158,6 +162,7 @@ class Incidente:
             "usuario_id": self.usuario_id,
             "fecha_creacion": self.fecha_creacion.strftime(FORMATO_FECHA),
             "solicitud_eliminacion": self.solicitud_eliminacion,
+            "confirmado": self.confirmado,
         }
 
     @classmethod
@@ -174,6 +179,7 @@ class Incidente:
             usuario_id=datos.get("usuario_id"),
             fecha_creacion=datetime.strptime(datos["fecha_creacion"], FORMATO_FECHA),
             solicitud_eliminacion=datos.get("solicitud_eliminacion"),  # reportes antiguos: None
+            confirmado=bool(datos.get("confirmado", True)),  # antiguos: ya eran públicos
         )
 
     def __str__(self) -> str:

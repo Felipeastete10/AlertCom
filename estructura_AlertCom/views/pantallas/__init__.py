@@ -9,6 +9,7 @@ from views.pantallas.history_view import HistoryScreen
 from views.pantallas.profile_view import ProfileScreen
 from views.pantallas.metricas_view import MetricasScreen
 from views.pantallas.ajustes_view import AjustesScreen
+from views.pantallas.confirmar_view import ConfirmarScreen
 
 __all__ = [
     "SafetyScreen",
@@ -20,4 +21,5 @@ __all__ = [
     "ProfileScreen",
     "MetricasScreen",
     "AjustesScreen",
+    "ConfirmarScreen",
 ]

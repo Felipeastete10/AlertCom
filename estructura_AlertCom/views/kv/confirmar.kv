@@ -1,0 +1,273 @@
+#:kivy 2.3.1
+
+# AlertCom - Pantalla: Confirmar reportes (solo funcionario municipal)
+# Lógica de esta pantalla: views/pantallas/confirmar_view.py
+#
+# Un espacio solo para revisar reportes nuevos: cada tarjeta trae la foto, los
+# datos y los dos botones para decidir sin abrir ventanas. Primero los más
+# graves; arriba se puede filtrar por gravedad.
+
+
+# Zona de la foto: se puede tocar (abre el detalle)
+<ZonaFoto@ButtonBehavior+MDRelativeLayout>:
+
+
+# --- Tarjeta de un reporte por confirmar ---
+<TarjetaConfirmar@MDBoxLayout>:
+    titulo: ""
+    calle: ""
+    gravedad: ""
+    icono_gravedad: "gauge"
+    color_gravedad: [1, 0.6, 0, 1]
+    fecha: ""
+    descripcion: ""
+    icono_tipo: "road-variant"
+    foto: ""
+    orientation: "vertical"
+    adaptive_height: True
+    padding: ["12dp", "12dp", "12dp", "12dp"]
+    spacing: "8dp"
+    canvas.before:
+        Color:
+            rgba: 0.15, 0.15, 0.2, 1
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(18)]
+        Color:
+            rgba: (list(self.color_gravedad[:3]) + [0.9]) if len(self.color_gravedad) >= 3 else (0, 0, 0, 0)
+        RoundedRectangle:
+            pos: self.x, self.top - dp(5)
+            size: self.width, dp(5)
+            radius: [dp(18), dp(18), 0, 0]
+
+    # Foto grande (o el ícono del tipo si no tiene foto). Tocar = ver detalle.
+    ZonaFoto:
+        id: zona_foto
+        size_hint_y: None
+        height: "170dp" if root.foto else "84dp"
+        canvas.before:
+            Color:
+                rgba: 0.1, 0.1, 0.13, 1
+            RoundedRectangle:
+                pos: 0, 0
+                size: self.size
+                radius: [dp(14)]
+
+        MDIcon:
+            icon: root.icono_tipo
+            theme_font_size: "Custom"
+            font_size: "40dp"
+            theme_text_color: "Custom"
+            text_color: [1, 0.6, 0, 0.85]
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            halign: "center"
+            opacity: 0 if root.foto else 1
+
+        Image:
+            source: root.foto
+            fit_mode: "cover"
+            opacity: 1 if root.foto else 0
+
+    # Título + gravedad
+    MDBoxLayout:
+        adaptive_height: True
+        spacing: "8dp"
+
+        MDLabel:
+            text: root.titulo
+            font_style: "Title"
+            role: "medium"
+            bold: True
+            adaptive_height: True
+            shorten: True
+            shorten_from: "right"
+            pos_hint: {"center_y": 0.5}
+
+        MDBoxLayout:
+            adaptive_size: True
+            spacing: "4dp"
+            padding: ["8dp", "4dp", "10dp", "4dp"]
+            pos_hint: {"center_y": 0.5}
+            canvas.before:
+                Color:
+                    rgba: (list(root.color_gravedad[:3]) + [0.18]) if len(root.color_gravedad) >= 3 else (0, 0, 0, 0)
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [self.height / 2]
+
+            MDIcon:
+                icon: root.icono_gravedad
+                theme_font_size: "Custom"
+                font_size: "15dp"
+                theme_text_color: "Custom"
+                text_color: root.color_gravedad
+                size_hint: None, None
+                size: self.texture_size
+                pos_hint: {"center_y": 0.5}
+
+            MDLabel:
+                text: root.gravedad
+                font_style: "Label"
+                role: "large"
+                bold: True
+                adaptive_size: True
+                theme_text_color: "Custom"
+                text_color: root.color_gravedad
+                pos_hint: {"center_y": 0.5}
+
+    # Calle y hace cuánto llegó
+    MDBoxLayout:
+        adaptive_height: True
+        spacing: "4dp"
+
+        MDIcon:
+            icon: "map-marker-outline"
+            theme_font_size: "Custom"
+            font_size: "16dp"
+            theme_text_color: "Secondary"
+            size_hint: None, None
+            size: self.texture_size
+            pos_hint: {"center_y": 0.5}
+
+        MDLabel:
+            text: root.calle
+            font_style: "Body"
+            role: "medium"
+            adaptive_height: True
+            shorten: True
+            shorten_from: "right"
+            pos_hint: {"center_y": 0.5}
+
+    MDBoxLayout:
+        adaptive_height: True
+        spacing: "4dp"
+
+        MDIcon:
+            icon: "clock-outline"
+            theme_font_size: "Custom"
+            font_size: "14dp"
+            theme_text_color: "Secondary"
+            size_hint: None, None
+            size: self.texture_size
+            pos_hint: {"center_y": 0.5}
+
+        MDLabel:
+            text: root.fecha
+            font_style: "Label"
+            role: "medium"
+            theme_text_color: "Secondary"
+            adaptive_height: True
+            pos_hint: {"center_y": 0.5}
+
+    # Descripción del vecino (si escribió algo)
+    MDLabel:
+        text: root.descripcion
+        font_style: "Body"
+        role: "small"
+        theme_text_color: "Secondary"
+        adaptive_height: True
+        opacity: 1 if root.descripcion else 0
+        height: self.texture_size[1] if root.descripcion else 0
+
+    # Decisión: sin ventanas, directo en la tarjeta
+    MDBoxLayout:
+        adaptive_height: True
+        spacing: "10dp"
+        padding: [0, "4dp", 0, 0]
+
+        MDButton:
+            id: boton_no_aprobar
+            style: "outlined"
+            theme_width: "Custom"
+            size_hint_x: 1
+
+            MDButtonIcon:
+                icon: "close"
+
+            MDButtonText:
+                text: "No aprobar"
+                pos_hint: {"center_x": 0.5, "center_y": 0.5}
+
+        MDButton:
+            id: boton_confirmar
+            style: "filled"
+            theme_width: "Custom"
+            size_hint_x: 1
+
+            MDButtonIcon:
+                icon: "check"
+
+            MDButtonText:
+                text: "Confirmar"
+                pos_hint: {"center_x": 0.5, "center_y": 0.5}
+
+
+<ConfirmarScreen>:
+    theme_bg_color: "Custom"
+    md_bg_color: app.color_fondo
+
+    MDBoxLayout:
+        orientation: "vertical"
+
+        MDTopAppBar:
+            theme_bg_color: "Custom"
+            md_bg_color: app.color_fondo
+            type: "small"
+
+            MDTopAppBarLeadingButtonContainer:
+                MDActionTopAppBarButton:
+                    icon: "arrow-left"
+                    on_release: app.navegacion.volver()
+
+            MDTopAppBarTitle:
+                text: "Confirmar reportes"
+                pos_hint: {"center_x": 0.5}
+
+        # Resumen: cuántos esperan y en qué orden se muestran
+        MDBoxLayout:
+            adaptive_height: True
+            spacing: "10dp"
+            padding: ["16dp", "6dp", "16dp", "4dp"]
+
+            MDIcon:
+                icon: "shield-search"
+                theme_text_color: "Custom"
+                text_color: [0.67, 0.72, 1, 1]
+                size_hint: None, None
+                size: self.texture_size
+                pos_hint: {"center_y": 0.5}
+
+            MDLabel:
+                id: resumen
+                text: ""
+                font_style: "Body"
+                role: "medium"
+                adaptive_height: True
+                pos_hint: {"center_y": 0.5}
+
+        # Filtro por gravedad (se desliza si no cabe)
+        ScrollView:
+            do_scroll_y: False
+            size_hint_y: None
+            height: "44dp"
+            bar_width: 0
+
+            MDBoxLayout:
+                id: filtro_gravedad
+                adaptive_width: True
+                spacing: "6dp"
+                padding: ["12dp", "4dp", "12dp", "4dp"]
+
+        MDDivider:
+
+        ScrollView:
+            do_scroll_x: False
+
+            MDBoxLayout:
+                id: lista
+                orientation: "vertical"
+                adaptive_height: True
+                spacing: "12dp"
+                padding: ["12dp", "10dp", "12dp", "16dp"]

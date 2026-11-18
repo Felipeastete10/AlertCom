@@ -337,12 +337,24 @@ class SincronizadorReportes:
             if not propio or antes is None:
                 continue
             numero = antes.id_incidente
-            if tipo == "estado":
+            if tipo == "confirmado" and despues.confirmado:
+                notificador.notificar(titulo="Reporte confirmado",
+                                      mensaje=f"El municipio confirmó tu reporte #{numero}: "
+                                              "ya aparece en el mapa de todos.")
+            elif tipo == "borrado" and not antes.confirmado and not antes.eliminacion_pendiente:
+                notificador.notificar(titulo="Reporte no aprobado",
+                                      mensaje=f"El municipio revisó tu reporte #{numero} "
+                                              f"({antes.tipo_incidente}) y no lo aprobó.")
+            elif tipo == "estado":
                 notificador.notificar(titulo="Actualización de tu reporte",
                                       mensaje=f"El reporte #{numero} ({antes.tipo_incidente}) ahora está: "
                                               f"{despues.estado}.")
             elif tipo == "borrado" and antes.eliminacion_pendiente:
                 notificador.notificar(titulo="Solicitud aprobada",
+                                      mensaje=f"El municipio eliminó tu reporte #{numero} ({antes.tipo_incidente}).")
+            elif tipo == "borrado" and antes.confirmado:
+                # El municipio lo borró sin que el vecino lo pidiera
+                notificador.notificar(titulo="Reporte eliminado",
                                       mensaje=f"El municipio eliminó tu reporte #{numero} ({antes.tipo_incidente}).")
             elif tipo == "solicitud" and antes.eliminacion_pendiente and not despues.eliminacion_pendiente:
                 notificador.notificar(titulo="Solicitud rechazada",

@@ -185,7 +185,7 @@ class TestNotificaciones(BaseTemporal):
     def test_crear_y_avanzar_estado_notifican(self):
         falso = NotificadorFalso()
         ctrl = IncidenteController(AlmacenamientoJSON(self.carpeta / "i.json"), notificador=falso)
-        inc = ctrl.crear_incidente("Grieta", "Moderado", **LUGAR)
+        inc = ctrl.crear_incidente("Grieta", "Moderado", confirmado=True, **LUGAR)
         ctrl.avanzar_estado(inc.id_incidente)
         self.assertEqual(len(falso.enviadas), 2)
         self.assertIn("En revisión", falso.enviadas[1][1])

@@ -22,6 +22,9 @@ def mostrar_detalle_reporte(incidente, botones=None, icono="map-marker-alert"):
     )
     if foto is None:
         mensaje += "\n\n(Este reporte no tiene foto.)"
+    if not incidente.confirmado:
+        mensaje += ("\n\nPor confirmar: el municipio aún no lo revisa. "
+                    "Por ahora solo lo ven su autor y el municipio.")
     if incidente.eliminacion_pendiente:
         motivo = incidente.solicitud_eliminacion.get("motivo", "")
         mensaje += (f"\n\nEliminación solicitada · Motivo: {motivo}.\n"

@@ -20,7 +20,7 @@ class Navegador:
     """Cambia de pantalla con transición y control de acceso."""
 
     PANTALLAS_PUBLICAS = {"safety", "login", "register"}
-    PANTALLAS_MUNICIPALES = {"metricas"}  # solo funcionario municipal
+    PANTALLAS_MUNICIPALES = {"metricas", "confirmar"}  # solo funcionario municipal
     PESTANAS = {
         "Inicio": ("home", "right"),
         "Mis Reportes": ("history", "left"),

@@ -35,9 +35,11 @@ CATALOGO_EVENTOS = {
     "eliminacion_solicitada": "El vecino pidió eliminar su reporte (con motivo)",
     "eliminacion_cancelada": "El vecino retiró su solicitud de eliminación",
     "eliminacion_aprobada": "El funcionario aprobó y el reporte se eliminó",
-    "reporte_eliminado": "Un funcionario eliminó directamente un reporte propio",
+    "reporte_eliminado": "Un funcionario eliminó directamente un reporte (con motivo)",
     "eliminacion_rechazada": "El funcionario rechazó la solicitud: el reporte se mantiene",
     "estado_cambiado": "Un funcionario cambió el estado de un reporte",
+    "reporte_confirmado": "Un funcionario confirmó un reporte nuevo: ya es público",
+    "reporte_no_aprobado": "Un funcionario no aprobó un reporte nuevo (con motivo): se borró",
     "config_remota_aplicada": "Llegaron textos desde la configuración remota",
 }
 

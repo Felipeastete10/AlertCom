@@ -18,7 +18,7 @@ CARPETA_FUENTES = BASE_DIR / "recursos" / "fuentes"     # tipografías (.ttf)
 CARPETA_DATOS = BASE_DIR / "datos"                      # JSON y log (no va a Git)
 
 # --- Versión (se muestra en el Perfil y se registra en app_abierta) ---------
-VERSION_APP = "1.6.0"
+VERSION_APP = "1.9.0"
 
 # --- Mapa ---------------------------------------------------------------------
 CENTRO_TEMUCO = (-38.7359, -72.5904)
@@ -32,7 +32,7 @@ URL_MAPA = "https://tile.openstreetmap.org/{z}/{x}/{y}.png"   # https: Android b
 
 # OpenStreetMap exige que cada app se identifique (política de uso de sus
 # servidores). Sin esto, los servidores pueden bloquear las imágenes del mapa.
-USER_AGENT = "AlertCom/1.6 (proyecto academico UC Temuco; +https://github.com/Felipeastete10/AlertCom)"
+USER_AGENT = "AlertCom/1.9 (proyecto academico UC Temuco; +https://github.com/Felipeastete10/AlertCom)"
 
 # Dirección a partir de coordenadas (Nominatim, de OpenStreetMap).
 # Solo se consulta mientras el vecino marca un reporte (máx. 1 vez por segundo).
@@ -98,6 +98,23 @@ MAX_CARACTERES_DESCRIPCION = 250
 MAX_CARACTERES_CALLE = 120
 
 # Motivos para pedir que se elimine un reporte (lo aprueba un funcionario)
+# Por qué el municipio NO aprueba un reporte nuevo (se le avisa al vecino)
+MOTIVOS_NO_APROBAR = [
+    "No es un daño en la calle",
+    "Está repetido",
+    "La ubicación está mal",
+    "La foto no corresponde",
+]
+
+# Por qué el municipio elimina directamente un reporte (puede borrar cualquiera)
+MOTIVOS_ELIMINACION_MUNICIPIO = [
+    "El daño ya fue reparado",
+    "Está repetido",
+    "No es un daño en la calle",
+    "La ubicación está mal",
+    "Contenido inapropiado",
+]
+
 MOTIVOS_ELIMINACION = [
     "Lo reporté por error",
     "Está repetido",

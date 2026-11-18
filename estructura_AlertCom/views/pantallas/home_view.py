@@ -14,6 +14,7 @@ from kivymd.app import MDApp
 from config import (ANCLA_MARCADOR_Y, CARPETA_IMAGENES, CENTRO_TEMUCO, LIMITES_TEMUCO, ZOOM_INICIAL,
                     ZOOM_UBICACION)
 from models.incidente import dentro_de_zona
+from views.componentes.acciones_municipio import eliminar_como_municipio
 from views.componentes.detalle_reporte import mostrar_detalle_reporte
 from views.componentes.dialogos import mostrar_aviso, mostrar_dialogo
 from views.componentes.interaccion import Pastilla
@@ -52,6 +53,8 @@ if MAPVIEW_DISPONIBLE:
             )
             self.incidente = incidente
             self.al_tocar = al_tocar
+            if not incidente.confirmado:
+                self.opacity = 0.55  # por confirmar: más tenue que los públicos
 
         def on_release(self, *args) -> None:
             self.al_tocar(self.incidente)
@@ -84,6 +87,10 @@ class HomeScreen(PantallaBase):
             self.filtros[estado] = filtro
 
     def on_pre_enter(self, *args) -> None:
+        usuario = self.auth_controller.usuario_actual if self.auth_controller else None
+        municipal = bool(usuario and usuario.es_municipal)
+        self.ids.boton_confirmar.opacity = 1 if municipal else 0
+        self.ids.boton_confirmar.disabled = not municipal
         self._marcar_pestana_inicio()
         self._inicializar_mapa()
         self._cargar_marcadores()
@@ -140,7 +147,9 @@ class HomeScreen(PantallaBase):
             self.map_view.remove_marker(marcador)
         self.marcadores.clear()
 
-        reportes = self.incidente_controller.obtener_historial()
+        # Confirmados + los propios por confirmar (el funcionario ve todos)
+        usuario = self.auth_controller.usuario_actual if self.auth_controller else None
+        reportes = self.incidente_controller.visibles_para(usuario)
         for estado, texto, _ in FILTROS:
             cantidad = sum(r.estado == estado for r in reportes)
             self.filtros[estado].texto = f"{texto} {cantidad}"
@@ -164,7 +173,14 @@ class HomeScreen(PantallaBase):
             mostrar_aviso("Todos los filtros apagados: toca uno para ver reportes")
 
     def _mostrar_detalle(self, incidente) -> None:
-        mostrar_detalle_reporte(incidente)
+        usuario = self.auth_controller.usuario_actual if self.auth_controller else None
+        botones = None
+        if usuario and usuario.es_municipal:
+            # Desde el mapa, el funcionario también puede eliminar el reporte
+            botones = [("Cerrar", None),
+                       ("Eliminar", lambda: eliminar_como_municipio(
+                           self.incidente_controller, usuario, incidente, al_terminar=self._cargar_marcadores))]
+        mostrar_detalle_reporte(incidente, botones=botones)
 
     # ------------------------------------------------------------------
     # Mi ubicación

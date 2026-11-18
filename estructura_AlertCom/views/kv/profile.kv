@@ -211,6 +211,28 @@
 
                 # Solo visible para funcionarios municipales (ver profile_view.py)
                 MDBoxLayout:
+                    id: caja_confirmar
+                    size_hint_y: None
+                    height: 0
+                    opacity: 0
+
+                    MDButton:
+                        id: boton_confirmar
+                        style: "filled"
+                        theme_width: "Custom"
+                        size_hint_x: 1
+                        disabled: True
+                        on_release: app.navegacion.ir_a("confirmar", "left")
+
+                        MDButtonIcon:
+                            icon: "shield-check-outline"
+
+                        MDButtonText:
+                            id: texto_boton_confirmar
+                            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                            text: "Confirmar reportes"
+
+                MDBoxLayout:
                     id: caja_metricas
                     size_hint_y: None
                     height: 0

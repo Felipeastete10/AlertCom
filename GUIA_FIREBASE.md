@@ -98,3 +98,13 @@ tramposas.
 ```
 python -m unittest pruebas.test_nube -v
 ```
+
+## 6. Confirmación de reportes (v1.7)
+
+Cada reporte de un vecino llega con `"confirmado": false`. La app lo muestra
+solo a su autor y al funcionario municipal; cuando el funcionario lo confirma
+(`"confirmado": true`) aparece en el mapa de todos. Si no lo aprueba, el
+reporte se borra de la nube y el vecino recibe un aviso.
+
+> Límite conocido: el filtro lo hace la app. Quien lea la base de datos
+> directamente con el enlace también vería los reportes por confirmar.

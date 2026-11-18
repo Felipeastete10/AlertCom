@@ -457,6 +457,8 @@ class ReportScreen(PantallaBase):
                 ubicacion=self._ubicacion_marcada(),
                 calle=self.ids.calle_field.text,
                 usuario_id=usuario.uid if usuario else None,
+                # El funcionario publica directo; el vecino espera su revisión
+                confirmado=bool(usuario and usuario.es_municipal),
             )
         except ValueError as error:
             sacudir(self.ids.fila_progreso)
@@ -468,6 +470,7 @@ class ReportScreen(PantallaBase):
         mostrar_exito(
             "¡Reporte enviado!",
             f"#{incidente.id_incidente} · {incidente.tipo_incidente} en {incidente.calle}\n"
-            "Te avisaremos cuando cambie su estado.",
+            + ("Te avisaremos cuando cambie su estado." if incidente.confirmado else
+               "El municipio lo revisará: cuando lo confirme, aparecerá en el mapa de todos."),
             al_terminar=lambda: MDApp.get_running_app().navegacion.ir_a("history", "left"),
         )

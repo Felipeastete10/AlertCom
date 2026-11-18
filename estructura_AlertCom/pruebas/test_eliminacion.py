@@ -115,21 +115,32 @@ class TestDecisionDelFuncionario(BaseEliminacion):
         self.assertEqual([i.id_incidente for i in pendientes], [self.reporte.id_incidente])
 
 
-class TestFuncionarioEliminaLoSuyo(BaseEliminacion):
+MOTIVO_MUNICIPIO = "El daño ya fue reparado"
+
+
+class TestFuncionarioEliminaCualquiera(BaseEliminacion):
+    """v1.9: el funcionario puede eliminar cualquier reporte, siempre con motivo."""
+
     def test_borra_su_propio_reporte_sin_solicitud(self):
         propio = self.ctrl.crear_incidente("Grieta", "Leve", usuario_id=self.funcionario.uid, **LUGAR)
-        self.ctrl.eliminar_reporte_propio(propio.id_incidente, self.funcionario)
+        self.ctrl.eliminar_reporte(propio.id_incidente, self.funcionario, MOTIVO_MUNICIPIO)
         self.assertIsNone(self.recargar().buscar(propio.id_incidente))
         self.assertIn("reporte_eliminado", self.eventos())
 
-    def test_no_borra_directo_el_reporte_de_un_vecino(self):
-        with self.assertRaises(PermissionError):
-            self.ctrl.eliminar_reporte_propio(self.reporte.id_incidente, self.funcionario)
+    def test_borra_directo_el_reporte_de_un_vecino(self):
+        self.ctrl.eliminar_reporte(self.reporte.id_incidente, self.funcionario, "Está repetido")
+        self.assertIsNone(self.recargar().buscar(self.reporte.id_incidente))
+
+    def test_sin_motivo_no_se_borra(self):
+        with self.assertRaises(ValueError):
+            self.ctrl.eliminar_reporte(self.reporte.id_incidente, self.funcionario, "")
         self.assertIsNotNone(self.recargar().buscar(self.reporte.id_incidente))
 
     def test_un_vecino_no_puede_usar_la_eliminacion_directa(self):
-        with self.assertRaises(PermissionError):
-            self.ctrl.eliminar_reporte_propio(self.reporte.id_incidente, self.vecino)
+        for quien in (self.vecino, self.otro_vecino, None):
+            with self.assertRaises(PermissionError):
+                self.ctrl.eliminar_reporte(self.reporte.id_incidente, quien, MOTIVO_MUNICIPIO)
+        self.assertIsNotNone(self.recargar().buscar(self.reporte.id_incidente))
 
 
 if __name__ == "__main__":

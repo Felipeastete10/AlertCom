@@ -14,7 +14,7 @@ title = AlertCom
 package.name = alertcom
 package.domain = org.alertcom
 # Nombre del paquete final: org.alertcom.alertcom
-version = 1.6.0
+version = 1.9.0
 
 # --- Qué archivos entran al APK ----------------------------------------------
 # main.py está en esta carpeta: la fuente es "."

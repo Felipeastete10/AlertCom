@@ -22,6 +22,14 @@
                 pos_hint: {"center_x": 0.5}
 
             MDTopAppBarTrailingButtonContainer:
+                # Solo funcionario: lleva a "Confirmar reportes" (home_view.py)
+                MDActionTopAppBarButton:
+                    id: boton_confirmar
+                    icon: "shield-check-outline"
+                    opacity: 0
+                    disabled: True
+                    on_release: app.navegacion.ir_a("confirmar", "left")
+
                 MDActionTopAppBarButton:
                     icon: "account-circle-outline"
                     on_release: app.navegacion.ir_a("profile", "left")

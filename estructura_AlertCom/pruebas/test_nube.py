@@ -243,7 +243,7 @@ class PruebaSinInternet(BaseNube):
     def test_borrar_algo_que_nunca_subio_no_va_a_la_nube(self):
         self.firebase.cerrar()
         reporte = self.tel_muni.reportar()
-        self.tel_muni.reportes.eliminar_reporte_propio(reporte.id_incidente, self.municipio)
+        self.tel_muni.reportes.eliminar_reporte(reporte.id_incidente, self.municipio, "Está repetido")
         self.assertEqual(self.tel_muni.nube.pendientes, 0)
 
 
@@ -252,6 +252,9 @@ class PruebaMunicipio(BaseNube):
         super().setUp()
         self.tel_ana.reportar()
         self.tel_muni.nube.sincronizar()
+        self.tel_muni.reportes.confirmar_reporte(1, self.municipio)   # ya es público
+        self.tel_ana.nube.sincronizar()
+        self.tel_ana.notificador.avisos.clear()
 
     def test_cambio_de_estado_llega_al_vecino_con_aviso(self):
         self.tel_muni.reportes.avanzar_estado(1)        # el municipio, en SU teléfono
@@ -279,6 +282,13 @@ class PruebaMunicipio(BaseNube):
         self.tel_ana.nube.sincronizar()
         self.assertFalse(self.tel_ana.reportes.buscar(1).eliminacion_pendiente)
         self.assertIn("Solicitud rechazada", [t for t, _ in self.tel_ana.notificador.avisos])
+
+    def test_el_municipio_elimina_y_el_vecino_recibe_aviso(self):
+        self.tel_muni.reportes.eliminar_reporte(1, self.municipio, "El daño ya fue reparado")
+        self.assertNotIn("reporte_1", self.en_la_nube())
+        self.tel_ana.nube.sincronizar()
+        self.assertEqual(self.tel_ana.ids(), [])
+        self.assertIn("Reporte eliminado", [t for t, _ in self.tel_ana.notificador.avisos])
 
     def test_modificar_algo_ya_borrado_no_lo_revive(self):
         self.firebase.datos["alertcom"]["incidentes"].pop("reporte_1")  # otro teléfono lo borró

@@ -21,6 +21,8 @@ from config import (
     MAX_CARACTERES_CALLE,
     MAX_CARACTERES_DESCRIPCION,
     MOTIVOS_ELIMINACION,
+    MOTIVOS_ELIMINACION_MUNICIPIO,
+    MOTIVOS_NO_APROBAR,
     TIPOS_DANO,
 )
 from controllers import fotos
@@ -85,6 +87,7 @@ class IncidenteController:
         foto: str | None = None,
         ubicacion: str | None = "",
         usuario_id: str | None = None,   # uid de la cuenta
+        confirmado: bool = False,        # True solo si lo crea un funcionario
         calle: str = "",
     ) -> Incidente:
         """
@@ -131,6 +134,7 @@ class IncidenteController:
             ubicacion=ubicacion,
             calle=calle,
             usuario_id=usuario_id,
+            confirmado=confirmado,
         )
         self.incidentes.append(incidente)
         self._guardar()
@@ -144,7 +148,8 @@ class IncidenteController:
         })
         self.notificador.notificar(
             titulo="Reporte enviado",
-            mensaje=f"Tu reporte #{incidente.id_incidente} ({tipo}, {gravedad}) quedó registrado.",
+            mensaje=(f"Tu reporte #{incidente.id_incidente} ({tipo}, {gravedad}) quedó registrado."
+                     + ("" if confirmado else " Se verá en el mapa cuando el municipio lo confirme.")),
         )
         return incidente
 
@@ -158,6 +163,8 @@ class IncidenteController:
         incidente = self.buscar(id_incidente)
         if incidente is None:
             raise ValueError(f"No existe el reporte #{id_incidente}.")
+        if not incidente.confirmado:
+            raise ValueError("Primero confirma el reporte: todavía no es público.")
 
         estado_anterior = incidente.estado
         incidente.cambiar_estado(nuevo_estado)
@@ -250,18 +257,24 @@ class IncidenteController:
         log.info("Reporte #%s eliminado por el funcionario id=%s.", id_incidente, usuario.id_usuario)
         return incidente
 
-    def eliminar_reporte_propio(self, id_incidente: int, usuario) -> Incidente:
-        """El funcionario borra un reporte que ÉL mismo creó, sin solicitud:
-        él es quien autoriza. Los reportes de otros siguen el camino
-        solicitud → aprobación."""
+    def eliminar_reporte(self, id_incidente: int, usuario, motivo: str) -> Incidente:
+        """El funcionario borra CUALQUIER reporte, sin esperar una solicitud
+        (él es quien autoriza). Siempre con motivo; si el reporte era de un
+        vecino, se le avisa. El vecino, en cambio, solo puede PEDIRLO."""
         self._exigir_municipal(usuario)
         incidente = self._reporte(id_incidente)
-        if incidente.usuario_id != usuario.uid:
-            raise PermissionError("Solo puedes eliminar directamente tus propios reportes. "
-                                  "Los de vecinos se eliminan cuando ellos lo solicitan.")
+        if motivo not in MOTIVOS_ELIMINACION_MUNICIPIO:
+            raise ValueError("Elige por qué se elimina el reporte.")
+        propio = incidente.usuario_id == usuario.uid
         self._borrar(incidente)
-        self.eventos.registrar("reporte_eliminado", {"id_incidente": id_incidente})
-        log.info("Reporte propio #%s eliminado por el funcionario id=%s.", id_incidente, usuario.id_usuario)
+        self.eventos.registrar("reporte_eliminado",
+                               {"id_incidente": id_incidente, "motivo": motivo, "propio": propio})
+        if not propio:
+            self.notificador.notificar(
+                titulo="Reporte eliminado",
+                mensaje=f"El municipio eliminó el reporte #{id_incidente} ({incidente.tipo_incidente}): {motivo}.",
+            )
+        log.info("Reporte #%s eliminado por el funcionario id=%s (%s).", id_incidente, usuario.id_usuario, motivo)
         return incidente
 
     def _borrar(self, incidente: Incidente) -> None:
@@ -286,6 +299,56 @@ class IncidenteController:
             mensaje=f"El municipio mantendrá tu reporte #{id_incidente}: el daño se revisará igual.",
         )
         return incidente
+
+    # ------------------------------------------------------------------
+    # Confirmación: un reporte nuevo es público solo cuando el municipio
+    # lo revisa (evita bromas, repetidos o lugares equivocados en el mapa)
+    # ------------------------------------------------------------------
+    def _sin_confirmar(self, id_incidente: int, usuario) -> Incidente:
+        if usuario is None or not usuario.es_municipal:
+            raise PermissionError("Solo un funcionario municipal puede revisar reportes nuevos.")
+        incidente = self._reporte(id_incidente)
+        if incidente.confirmado:
+            raise ValueError("Este reporte ya fue confirmado.")
+        return incidente
+
+    def confirmar_reporte(self, id_incidente: int, usuario) -> Incidente:
+        """El funcionario revisó el reporte: pasa a ser visible para todos."""
+        incidente = self._sin_confirmar(id_incidente, usuario)
+        incidente.confirmado = True
+        self._guardar()
+        self._avisar_cambio("modificado", incidente, ["confirmado"])
+        self.eventos.registrar("reporte_confirmado", {"id_incidente": id_incidente})
+        self.notificador.notificar(
+            titulo="Reporte confirmado",
+            mensaje=f"El reporte #{id_incidente} ({incidente.tipo_incidente}) ya aparece en el mapa de todos.",
+        )
+        return incidente
+
+    def no_aprobar_reporte(self, id_incidente: int, usuario, motivo: str) -> Incidente:
+        """El funcionario no aprueba el reporte: se borra con su foto."""
+        incidente = self._sin_confirmar(id_incidente, usuario)
+        if motivo not in MOTIVOS_NO_APROBAR:
+            raise ValueError("Elige por qué no se aprueba el reporte.")
+        self._borrar(incidente)
+        self.eventos.registrar("reporte_no_aprobado", {"id_incidente": id_incidente, "motivo": motivo})
+        self.notificador.notificar(
+            titulo="Reporte no aprobado",
+            mensaje=f"El municipio no aprobó el reporte #{id_incidente}: {motivo}.",
+        )
+        return incidente
+
+    def por_confirmar(self) -> list[Incidente]:
+        return sorted((i for i in self.incidentes if not i.confirmado),
+                      key=lambda i: i.fecha_creacion)
+
+    def visibles_para(self, usuario) -> list[Incidente]:
+        """Lo que muestra el mapa: los confirmados, más los propios por
+        confirmar. El funcionario ve todo."""
+        if usuario is not None and usuario.es_municipal:
+            return self.obtener_historial()
+        uid = usuario.uid if usuario is not None else None
+        return [i for i in self.obtener_historial() if i.confirmado or (uid and i.usuario_id == uid)]
 
     def solicitudes_pendientes(self) -> list[Incidente]:
         return [i for i in self.incidentes if i.eliminacion_pendiente]
@@ -354,6 +417,8 @@ class IncidenteController:
             anterior = antes.get(id_inc)
             if anterior is None:
                 cambios.append(("nuevo", None, incidente))
+            elif anterior.confirmado != incidente.confirmado:
+                cambios.append(("confirmado", anterior, incidente))
             elif anterior.estado != incidente.estado:
                 cambios.append(("estado", anterior, incidente))
             elif anterior.solicitud_eliminacion != incidente.solicitud_eliminacion:

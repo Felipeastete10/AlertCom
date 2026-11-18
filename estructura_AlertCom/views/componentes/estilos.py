@@ -28,3 +28,6 @@ ESTILO_GRAVEDAD = {
     "Crítico": ("alert-octagon", [0.9, 0.28, 0.28, 1]),
 }
 GRIS = [0.6, 0.6, 0.6, 1]
+# Reporte nuevo que espera la revisión del municipio (aún no es público)
+COLOR_POR_CONFIRMAR = [0.62, 0.66, 1, 1]
+ICONO_POR_CONFIRMAR = "shield-search"

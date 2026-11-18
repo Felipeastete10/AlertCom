@@ -25,6 +25,7 @@ from views.pantallas import (
     LoginScreen,
     MetricasScreen,
     AjustesScreen,
+    ConfirmarScreen,
     ProfileScreen,
     RegisterScreen,
     ReportScreen,
@@ -60,6 +61,7 @@ def crear_gestor_pantallas(app, controlador):
     gestor.add_widget(ProfileScreen(name="profile", auth_controller=auth, incidente_controller=incidentes))
     gestor.add_widget(MetricasScreen(name="metricas", auth_controller=auth))
     gestor.add_widget(AjustesScreen(name="ajustes", auth_controller=auth, incidente_controller=incidentes))
+    gestor.add_widget(ConfirmarScreen(name="confirmar", incidente_controller=incidentes, auth_controller=auth))
 
     # Tamaño de letra y fondo que la persona eligió la última vez
     aplicar_apariencia(app, controlador.preferencias)

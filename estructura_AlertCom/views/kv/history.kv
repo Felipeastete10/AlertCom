@@ -305,28 +305,34 @@
 
 
 # Aviso para el funcionario: hay solicitudes de eliminación por revisar.
+# Aviso para el funcionario (solicitudes de eliminación o reportes por
+# confirmar). Cada uso elige su ícono y su color.
 <AvisoSolicitudes@ButtonBehavior+MDBoxLayout>:
     texto: ""
     activo: False
+    icono: "delete-clock-outline"
+    color: [0.9, 0.28, 0.28]
+    color_icono: [1, 0.5, 0.47, 1]
+    color_texto: [1, 0.78, 0.76, 1]
     spacing: "10dp"
     padding: ["14dp", "10dp", "12dp", "10dp"]
     canvas.before:
         Color:
-            rgba: 0.9, 0.28, 0.28, (0.26 if self.activo else 0.15)
+            rgba: (list(self.color[:3]) + [0.26 if self.activo else 0.15]) if len(self.color) >= 3 else (0, 0, 0, 0)
         RoundedRectangle:
             pos: self.pos
             size: self.size
             radius: [dp(16)]
         Color:
-            rgba: 0.9, 0.28, 0.28, (1 if self.activo else 0.5)
+            rgba: (list(self.color[:3]) + [1 if self.activo else 0.5]) if len(self.color) >= 3 else (0, 0, 0, 0)
         Line:
             rounded_rectangle: (self.x, self.y, self.width, self.height, dp(16))
             width: dp(1.3)
 
     MDIcon:
-        icon: "delete-clock-outline"
+        icon: root.icono
         theme_text_color: "Custom"
-        text_color: [1, 0.5, 0.47, 1]
+        text_color: root.color_icono
         size_hint: None, None
         size: self.texture_size
         pos_hint: {"center_y": 0.5}
@@ -337,13 +343,13 @@
         role: "large"
         bold: True
         theme_text_color: "Custom"
-        text_color: [1, 0.78, 0.76, 1]
+        text_color: root.color_texto
         pos_hint: {"center_y": 0.5}
 
     MDIcon:
         icon: "close" if root.activo else "chevron-right"
         theme_text_color: "Custom"
-        text_color: [1, 0.78, 0.76, 1]
+        text_color: root.color_texto
         size_hint: None, None
         size: self.texture_size
         pos_hint: {"center_y": 0.5}
@@ -373,6 +379,22 @@
                 text: "Mis Reportes"
                 pos_hint: {"center_x": 0.5}
 
+        # Solo lo ve el funcionario: reportes nuevos que esperan su revisión
+        MDBoxLayout:
+            id: caja_confirmar
+            size_hint_y: None
+            height: 0
+            opacity: 0
+            padding: ["12dp", "10dp", "12dp", "0dp"]
+
+            AvisoSolicitudes:
+                id: aviso_confirmar
+                icono: "shield-search"
+                color: [0.55, 0.6, 1]
+                color_icono: [0.67, 0.72, 1, 1]
+                color_texto: [0.84, 0.86, 1, 1]
+                on_release: app.navegacion.ir_a("confirmar", "left")
+
         # Solo lo ve el funcionario, y solo si hay solicitudes
         MDBoxLayout:
             id: caja_solicitudes
@@ -384,6 +406,28 @@
             AvisoSolicitudes:
                 id: aviso_solicitudes
                 on_release: root.filtrar("eliminacion")
+
+        # Solo vecinos: sus reportes, o los ya confirmados de toda la ciudad
+        MDBoxLayout:
+            id: caja_pestanas
+            size_hint_y: None
+            height: 0
+            opacity: 0
+            spacing: "8dp"
+            padding: ["12dp", "10dp", "12dp", "0dp"]
+
+            Pastilla:
+                id: pestana_mios
+                texto: "Mis reportes"
+                icono: "account-outline"
+                on_release: root.cambiar_vista("mios")
+
+            Pastilla:
+                id: pestana_confirmados
+                texto: "Confirmados"
+                icono: "check-decagram-outline"
+                color: [0.2, 0.66, 0.33, 1]
+                on_release: root.cambiar_vista("confirmados")
 
         # ── Contadores = filtros (se llenan desde history_view.py) ──
         MDBoxLayout:
@@ -416,6 +460,19 @@
                 texto: "Reparados"
                 color: [0.2, 0.66, 0.33, 1]
                 on_release: root.filtrar("Reparado")
+
+        # Filtro por gravedad (views/componentes/filtros.py); se desliza si no cabe
+        ScrollView:
+            do_scroll_y: False
+            size_hint_y: None
+            height: "44dp"
+            bar_width: 0
+
+            MDBoxLayout:
+                id: filtro_gravedad
+                adaptive_width: True
+                spacing: "6dp"
+                padding: ["12dp", "4dp", "12dp", "4dp"]
 
         MDLabel:
             id: texto_filtro
